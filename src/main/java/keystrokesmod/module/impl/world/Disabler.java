@@ -16,6 +16,7 @@ public class MotionDisabler extends Module {
     private int offGroundTicks = 0;
     private int correctionCount = 0;
     private float progress = 0; // Progress from 0 to 100
+    private boolean motionRestored = false;
 
     public MotionDisabler() {
         super("Motion Disabler", ModuleCategory.world);
@@ -27,21 +28,43 @@ public class MotionDisabler extends Module {
         offGroundTicks = 0;
         correctionCount = 0;
         progress = 0;
+        motionRestored = false;
         sendMessage("Motion Disabler Activated");
     }
 
     @Override
     public void onDisable() {
+        resetState();
+        sendMessage("Motion Disabler Deactivated");
+    }
+
+    private void resetState() {
         isActive = false;
         offGroundTicks = 0;
         correctionCount = 0;
         progress = 0;
-        sendMessage("Motion Disabler Deactivated");
+        motionRestored = false;
+        restoreMovement();
+    }
+
+    private void restoreMovement() {
+        if (mc.thePlayer != null) {
+            mc.thePlayer.motionX = 0.0;
+            mc.thePlayer.motionY = 0.0;
+            mc.thePlayer.motionZ = 0.0;
+        }
     }
 
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent event) {
         if (!isActive || mc.thePlayer == null || mc.theWorld == null) return;
+
+        if (progress >= 100 && !motionRestored) {
+            motionRestored = true;
+            sendMessage("Player can move again!");
+            restoreMovement();
+            return;
+        }
 
         // Add small vertical motion and packet manipulation when off-ground
         if (!mc.thePlayer.onGround) {
@@ -87,11 +110,7 @@ public class MotionDisabler extends Module {
 
     @SubscribeEvent
     public void onWorldChange(WorldChangeEvent event) {
-        // Reset state when changing worlds
-        isActive = false;
-        offGroundTicks = 0;
-        correctionCount = 0;
-        progress = 0;
+        resetState(); // Reset state when changing worlds
     }
 
     @SubscribeEvent
@@ -109,20 +128,15 @@ public class MotionDisabler extends Module {
             int x = (width - barWidth) / 2; // Center horizontally
             int y = height / 2 + 50; // Position slightly below center
 
-            
             drawRect(x, y, x + barWidth, y + barHeight, 0x90000000); // Semi-transparent black
-
-            
             drawRect(x, y, x + (int) (progress / 100 * barWidth), y + barHeight, 0xFF00FF00); // Green progress
 
-            
             String progressText = "Disabler " + (int) progress + "%";
             mc.fontRendererObj.drawStringWithShadow(progressText, x + barWidth / 2 - mc.fontRendererObj.getStringWidth(progressText) / 2, y - 10, 0xFFFFFF);
         }
     }
 
     private void drawRect(int left, int top, int right, int bottom, int color) {
-        // Utility method to draw rectangles on the screen
         net.minecraft.client.renderer.Tessellator tessellator = net.minecraft.client.renderer.Tessellator.getInstance();
         net.minecraft.client.renderer.WorldRenderer worldRenderer = tessellator.getWorldRenderer();
         net.minecraft.client.renderer.GlStateManager.enableBlend();
