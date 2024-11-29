@@ -8,14 +8,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
+import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
-public class MotionDisabler extends Module {
+public class MotionDisabler.java extends Module {
     private boolean isActive = false;
     private int offGroundTicks = 0;
     private int correctionCount = 0;
@@ -30,11 +32,13 @@ public class MotionDisabler extends Module {
     public void onEnable() {
         isActive = true;
         resetState();
+        sendMessage("Motion Disabler Activated");
     }
 
     @Override
     public void onDisable() {
         resetState();
+        sendMessage("Motion Disabler Deactivated");
     }
 
     private void resetState() {
@@ -63,8 +67,9 @@ public class MotionDisabler extends Module {
         if (event.getPacket() instanceof S08PacketPlayerPosLook) {
             correctionCount++;
             if (correctionCount >= 5) {
+                sendMessage("Warning: Anti-cheat corrections detected!");
                 correctionCount = 0;
-                progress = Math.max(progress - 20, 0); // Decrease progress, min at 0
+                progress = Math.max(progress - 20, 0);
             }
         }
     }
@@ -85,14 +90,17 @@ public class MotionDisabler extends Module {
 
     private void drawBar(int x, int y, int width, int height, float percentage) {
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldRenderer = tessellator.getWorldRenderer();
+        BufferBuilder buffer = tessellator.getBuffer();
         GlStateManager.enableBlend();
-        worldRenderer.startDrawingQuads();
-        worldRenderer.setColorOpaque_I(0x90000000); // Semi-transparent black
-        worldRenderer.addVertex(x, y + height, 0.0);
-        worldRenderer.addVertex(x + width, y + height, 0.0);
-        worldRenderer.addVertex(x + width, y, 0.0);
-        worldRenderer.addVertex(x, y, 0.0);
+        buffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        buffer.pos(x, y + height, 0).color(0, 0, 0, 150).endVertex();
+        buffer.pos(x + width, y + height, 0).color(0, 0, 0, 150).endVertex();
+        buffer.pos(x + width, y, 0).color(0, 0, 0, 150).endVertex();
+        buffer.pos(x, y, 0).color(0, 0, 0, 150).endVertex();
         tessellator.draw();
+    }
+
+    protected void sendMessage(String message) {
+        mc.thePlayer.addChatMessage(new ChatComponentText("[MotionDisabler] " + message));
     }
 }
