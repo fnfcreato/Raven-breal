@@ -26,7 +26,7 @@ public class MotionDisabler extends Module {
     private boolean motionRestored = false;
 
     public MotionDisabler() {
-        super("MotionDisabler", ModuleCategory.world, 0);
+        super("MotionDisabler", category.world);
     }
 
     @Override
