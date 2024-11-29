@@ -3,7 +3,6 @@ package keystrokesmod.module.impl.world;
 import keystrokesmod.event.PreMotionEvent;
 import keystrokesmod.event.ReceivePacketEvent;
 import keystrokesmod.module.Module;
-import keystrokesmod.module.ModuleCategory; // Assuming this exists in your project
 import keystrokesmod.utility.PacketUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
