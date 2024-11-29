@@ -8,20 +8,19 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
-public class MotionDisabler.java extends Module {
+public class MotionDisabler extends Module {
     private boolean isActive = false;
     private int offGroundTicks = 0;
     private int correctionCount = 0;
-    private float progress = 0; 
+    private float progress = 0;
     private boolean motionRestored = false;
 
     public MotionDisabler() {
@@ -90,7 +89,7 @@ public class MotionDisabler.java extends Module {
 
     private void drawBar(int x, int y, int width, int height, float percentage) {
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.getBuilder(); // Modern Forge
         GlStateManager.enableBlend();
         buffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
         buffer.pos(x, y + height, 0).color(0, 0, 0, 150).endVertex();
