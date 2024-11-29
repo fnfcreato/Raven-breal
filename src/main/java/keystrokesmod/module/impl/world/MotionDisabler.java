@@ -3,11 +3,13 @@ package keystrokesmod.module.impl.world;
 import keystrokesmod.event.PreMotionEvent;
 import keystrokesmod.event.ReceivePacketEvent;
 import keystrokesmod.module.Module;
+import keystrokesmod.module.ModuleCategory; // Assuming this exists in your project
 import keystrokesmod.utility.PacketUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
@@ -24,7 +26,7 @@ public class MotionDisabler extends Module {
     private boolean motionRestored = false;
 
     public MotionDisabler() {
-        super("MotionDisabler", Module.category.world, 0);
+        super("MotionDisabler", ModuleCategory.world, 0);
     }
 
     @Override
@@ -89,13 +91,21 @@ public class MotionDisabler extends Module {
 
     private void drawBar(int x, int y, int width, int height, float percentage) {
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder(); // Modern Forge
+        WorldRenderer buffer = tessellator.getWorldRenderer(); // Pre-1.13 Forge uses WorldRenderer
         GlStateManager.enableBlend();
         buffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
         buffer.pos(x, y + height, 0).color(0, 0, 0, 150).endVertex();
         buffer.pos(x + width, y + height, 0).color(0, 0, 0, 150).endVertex();
         buffer.pos(x + width, y, 0).color(0, 0, 0, 150).endVertex();
         buffer.pos(x, y, 0).color(0, 0, 0, 150).endVertex();
+        tessellator.draw();
+
+        // Draw the progress bar
+        buffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        buffer.pos(x, y + height, 0).color(0, 255, 0, 150).endVertex();
+        buffer.pos(x + (width * percentage), y + height, 0).color(0, 255, 0, 150).endVertex();
+        buffer.pos(x + (width * percentage), y, 0).color(0, 255, 0, 150).endVertex();
+        buffer.pos(x, y, 0).color(0, 255, 0, 150).endVertex();
         tessellator.draw();
     }
 
