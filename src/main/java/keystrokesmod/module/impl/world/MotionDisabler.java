@@ -2,20 +2,16 @@ package keystrokesmod.module.impl.world;
 
 import keystrokesmod.event.PreMotionEvent;
 import keystrokesmod.event.ReceivePacketEvent;
-import keystrokesmod.module.Module;
-import keystrokesmod.utility.PacketUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.network.play.client.C03PacketPlayer;
+import keystrokesmod.event.WorldChangeEvent;
+import keystrokesmod.module.ModuleManager;
+import keystrokesmod.module.impl.client.Notifications;
+import keystrokesmod.module.impl.world.MotionDisabler;
+import keystrokesmod.module.setting.impl.ButtonSetting;
+import keystrokesmod.utility.Utils;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
-import net.minecraft.util.ChatComponentText;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import keystrokesmod.module.setting.impl.SliderSetting;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class MotionDisabler extends Module {
     private boolean isActive = false;
