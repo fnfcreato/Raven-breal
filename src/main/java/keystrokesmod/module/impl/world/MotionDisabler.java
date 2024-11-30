@@ -4,7 +4,6 @@ import keystrokesmod.event.PreMotionEvent;
 import keystrokesmod.event.ReceivePacketEvent;
 import keystrokesmod.event.WorldChangeEvent;
 import keystrokesmod.module.ModuleManager;
-import keystrokesmod.module.impl.client.Notifications;
 import keystrokesmod.module.impl.world.MotionDisabler;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.utility.Utils;
