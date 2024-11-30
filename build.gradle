@@ -12,9 +12,9 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.3'
-        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
 
@@ -26,16 +26,9 @@ apply plugin: 'java'
 group = "keystrokesmod"
 archivesBaseName = "raven-bS"
 
-compileJava {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
-    options.encoding 'UTF-8'
-}
-
 minecraft {
     version = "1.8.9-11.15.1.2318-1.8.9"
     runDir = "run"
-
     mappings = "stable_20"
     makeObfSourceJar = false
     clientJvmArgs += '-Dfml.coreMods.load=keystrokesmod.mixins.MixinLoader'
@@ -52,19 +45,12 @@ mixin {
 
 repositories {
     mavenCentral()
-    maven {
-        url 'https://repo.spongepowered.org/maven'
-    }
-}
-
-configurations {
-    embed
-    compile.extendsFrom embed
+    maven { url 'https://repo.spongepowered.org/maven' }
 }
 
 dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-    embed('org.spongepowered:mixin:0.6-SNAPSHOT') {
+    embed('org.spongepowered:mixin:0.8-SNAPSHOT') {
         exclude module: 'gson'
         exclude module: 'guava'
         exclude module: 'jarjar'
@@ -83,7 +69,6 @@ processResources {
 
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-
         expand 'version': project.version, 'mcversion': project.minecraft.version
     }
 
@@ -96,38 +81,17 @@ jar {
     from(configurations.embed.collect {
         it.isDirectory() ? it : zipTree(it)
     }) {
-        exclude 'dummyThing',
-                'LICENSE.txt',
-                'META-INF/MUMFREY.RSA',
-                'META-INF/maven/**',
-                'org/**/*.html'
-        exclude 'LICENSE.md'
-        exclude 'pack.mcmeta'
-        exclude '**/module-info.class'
-        exclude '*.so'
-        exclude '*.dylib'
-        exclude '*.dll'
-        exclude '*.jnilib'
-        exclude 'ibxm/**'
-        exclude 'com/jcraft/**'
-        exclude 'org/lwjgl/**'
-        exclude 'net/java/**'
-
-        exclude 'META-INF/proguard/**'
-        exclude 'META-INF/versions/**'
-        exclude 'META-INF/com.android.tools/**'
-
-        exclude 'fabric.mod.json'
+        exclude 'META-INF/**'
     }
     manifest {
         attributes(
-                'MixinConfigs': 'mixins.raven.json',
-                'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-                'TweakOrder': 0,
-                "FMLCorePlugin": "keystrokesmod.mixins.MixinLoader",
-                "ForceLoadAsMod": true,
-                'FMLCorePluginContainsFMLMod': true,
-                "ModSide": "CLIENT"
+            'MixinConfigs': 'mixins.raven.json',
+            'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+            'TweakOrder': 0,
+            "FMLCorePlugin": "keystrokesmod.mixins.MixinLoader",
+            "ForceLoadAsMod": true,
+            'FMLCorePluginContainsFMLMod': true,
+            "ModSide": "CLIENT"
         )
     }
 }
