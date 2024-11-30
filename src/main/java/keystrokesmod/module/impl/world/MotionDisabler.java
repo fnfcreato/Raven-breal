@@ -30,9 +30,9 @@ public class MotionDisabler extends Module {
     private int correctionCount = 0;
     private float progress = 0;
     private boolean motionRestored = false;
+    public SliderSetting a;
     
     public MotionDisabler() {
-        public SliderSetting a;
 
         public MotionDisabler() {
             super("MotionDisabler", category.world, 0);
