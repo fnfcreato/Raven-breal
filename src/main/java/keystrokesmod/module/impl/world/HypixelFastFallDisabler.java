@@ -5,7 +5,8 @@ import keystrokesmod.event.SendPacketEvent;
 import keystrokesmod.module.Module;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.network.play.server.S07PacketRespawn;
-
+import keystrokesmod.module.setting.impl.ButtonSetting;
+import keystrokesmod.module.setting.impl.SliderSetting;
 
 public class HypixelFastFallDisabler extends Module {
     private boolean jump = false;
@@ -14,7 +15,7 @@ public class HypixelFastFallDisabler extends Module {
     private int timeTicks = 0;
 
     public HypixelFastFallDisabler() {
-        super("Hypixel Fast Fall", Module.category.exploit, 0); // No keybinding by default
+        super("Hypixel Fast Fall", Module.category.world, 0); // No keybinding by default
     }
 
     @Override
