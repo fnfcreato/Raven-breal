@@ -17,6 +17,11 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import keystrokesmod.module.setting.impl.ButtonSetting;
+import keystrokesmod.module.setting.impl.SliderSetting;
+
+
+
 
 public class MotionDisabler extends Module {
     private boolean isActive = false;
