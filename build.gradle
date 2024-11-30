@@ -18,13 +18,30 @@ buildscript {
     }
 }
 
+
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'java'
 
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+
+tasks.withType(JavaCompile) {
+    options.release = 8
+    options.encoding = 'UTF-8'
+}
+
+
+
+
 group = "keystrokesmod"
 archivesBaseName = "raven-bS"
+
 
 minecraft {
     version = "1.8.9-11.15.1.2318-1.8.9"
@@ -33,6 +50,7 @@ minecraft {
     makeObfSourceJar = false
     clientJvmArgs += '-Dfml.coreMods.load=keystrokesmod.mixins.MixinLoader'
 }
+
 
 mixin {
     defaultObfuscationEnv searge
@@ -43,10 +61,12 @@ mixin {
     }
 }
 
+
 repositories {
     mavenCentral()
     maven { url 'https://repo.spongepowered.org/maven' }
 }
+
 
 dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
@@ -63,19 +83,23 @@ dependencies {
         implementation 'org.jetbrains:annotations:24.1.0'
 }
 
+
 processResources {
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
+
 
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
         expand 'version': project.version, 'mcversion': project.minecraft.version
     }
 
+
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
 }
+
 
 jar {
     from {
@@ -95,4 +119,3 @@ jar {
             "ModSide": "CLIENT"
         )
     }
-
