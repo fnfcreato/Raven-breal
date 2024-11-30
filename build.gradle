@@ -50,7 +50,7 @@ repositories {
 
 dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-    embed('org.spongepowered:mixin:0.8-SNAPSHOT') {
+    implementation 'org.spongepowered:mixin:0.8-SNAPSHOT' {
         exclude module: 'gson'
         exclude module: 'guava'
         exclude module: 'jarjar'
@@ -78,11 +78,12 @@ processResources {
 }
 
 jar {
-    from(configurations.embed.collect {
-        it.isDirectory() ? it : zipTree(it)
-    }) {
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
         exclude 'META-INF/**'
     }
+}
     manifest {
         attributes(
             'MixinConfigs': 'mixins.raven.json',
