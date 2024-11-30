@@ -1,24 +1,33 @@
-package keystrokesmod.modules.impl.world;
+package keystrokesmod.module.impl.exploit;
 
 import keystrokesmod.event.PreMotionEvent;
 import keystrokesmod.event.SendPacketEvent;
+import keystrokesmod.module.Module;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.network.play.server.S07PacketRespawn;
-import keystrokesmod.module.setting.impl.ButtonSetting;
-import keystrokesmod.module.Module;
-import keystrokesmod.module.setting.impl.SliderSetting;
 
 
-public class HypixelFastFallDisabler {
+public class HypixelFastFallDisabler extends Module {
     private boolean jump = false;
     private boolean disabling = false;
     private int testTicks = 0;
     private int timeTicks = 0;
 
+    public HypixelFastFallDisabler() {
+        super("Hypixel Fast Fall", Module.category.exploit, 0); // No keybinding by default
+    }
+
+    @Override
     public void onEnable() {
         jump = true;
         disabling = false;
         testTicks = 0;
+    }
+
+    @Override
+    public void onDisable() {
+        jump = false;
+        disabling = false;
     }
 
     public void onPreMotion(PreMotionEvent event) {
