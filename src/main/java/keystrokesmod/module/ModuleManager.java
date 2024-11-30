@@ -73,6 +73,7 @@ public class ModuleManager {
         this.addModule(new Blink());
         this.addModule(new BurstClicker());
         this.addModule(weather = new Weather());
+        this.addModule(motionDisabler = new MotionDisabler());
         this.addModule(new ClickAssist());
         this.addModule(tower = new Tower());
         this.addModule(skyWars = new SkyWars());
@@ -160,6 +161,7 @@ public class ModuleManager {
         this.addModule(new AutoWho());
         this.addModule(new Gui());
         this.addModule(new Shaders());
+        
         antiBot.enable();
         Collections.sort(this.modules, Comparator.comparing(Module::getName));
     }
