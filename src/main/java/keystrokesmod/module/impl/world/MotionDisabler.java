@@ -75,7 +75,9 @@ public void onReceivePacket(@NotNull ReceivePacketEvent event) {
         if (this.flagged == 20) {
             isFinished = true;
             flagged = 0;
-            Notifications.sendNotification(Notifications.NotificationTypes.INFO, "WatchDog Motion is disabled.");
+
+            // Send a chat message instead of a notification
+            mc.thePlayer.addChatMessage(new ChatComponentText("WatchDog Motion is disabled."));
         }
     }
 }
@@ -104,4 +106,5 @@ public void onDisable() {
 @Override
 public void onEnable() {
     onWorldChange(null);
+}
 }
