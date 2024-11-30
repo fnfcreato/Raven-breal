@@ -50,7 +50,8 @@ repositories {
 
 dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-    implementation 'org.spongepowered:mixin:0.8-SNAPSHOT' {
+    implementation 'org.spongepowered:mixin:0.8-SNAPSHOT' 
+    {
         exclude module: 'gson'
         exclude module: 'guava'
         exclude module: 'jarjar'
@@ -60,7 +61,7 @@ dependencies {
         exclude module: 'asm-commons'
         exclude module: 'slf4j-api'
     }
-    implementation 'org.jetbrains:annotations:24.1.0'
+        implementation 'org.jetbrains:annotations:24.1.0'
 }
 
 processResources {
