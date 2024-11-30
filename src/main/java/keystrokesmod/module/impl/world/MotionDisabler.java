@@ -23,7 +23,7 @@ import net.minecraft.util.ChatComponentText; // Handles chat messages.
 import keystrokesmod.module.ModuleManager; // fixed this, dawg im so blind Ah
 import net.minecraftforge.client.event.RenderGameOverlayEvent; 
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent; 
-
+import keystrokesmod.utility.PacketUtils; // another easy fix that i forgot to add to fix build gradle error.
 
 public class MotionDisabler extends Module {
     private boolean isActive = false;
