@@ -40,90 +40,68 @@ public class MotionDisabler extends Module {
         super("MotionDisabler", category.world, 0);
     }
 
-    @Override
-    public void onEnable() {
-        isActive = true;
-        resetState();
-        sendMessage("Motion Disabler Activated");
+public static boolean isDisabled() {
+    // Check if the disabler module is enabled
+    if (!ModuleManager.disabler.isEnabled()) return false;
+
+    // Return the status of 'isFinished' as the primary indicator
+    return isFinished;
+}
+
+@SubscribeEvent
+public void onPreMotion(PreMotionEvent event) {
+    if (isFinished || !Utils.nullCheck() || mc.thePlayer.ticksExisted < 20) return;
+
+    if (lobbyCheck.isToggled() && Utils.isLobby()) {
+        return;
     }
 
-    @Override
-    public void onDisable() {
-        resetState();
-        sendMessage("Motion Disabler Deactivated");
+    if (mc.thePlayer.onGround) {
+        if (!Utils.jumpDown()) {
+            mc.thePlayer.jump();
+        }
+    } else if (offGroundTicks >= 9) {
+        if (offGroundTicks % 2 == 0) {
+            event.setPosZ(event.getPosZ() + Utils.randomizeDouble(0.09, 0.12));  // Slight Z-axis adjustment
+        }
+        mc.thePlayer.motionX = mc.thePlayer.motionY = mc.thePlayer.motionZ = 0.0;
     }
+}
 
-    private void resetState() {
-        isActive = false;
+@SubscribeEvent
+public void onReceivePacket(@NotNull ReceivePacketEvent event) {
+    if (event.getPacket() instanceof S08PacketPlayerPosLook && !isFinished) {
+        flagged++;
+        if (this.flagged == 20) {
+            isFinished = true;
+            flagged = 0;
+            Notifications.sendNotification(Notifications.NotificationTypes.INFO, "WatchDog Motion is disabled.");
+        }
+    }
+}
+
+@SubscribeEvent
+public void onWorldChange(WorldChangeEvent event) {
+    isFinished = false;
+    this.flagged = 0;
+}
+
+@Override
+public void onUpdate() {
+    if (mc.thePlayer.onGround) {
         offGroundTicks = 0;
-        correctionCount = 0;
-        progress = 0;
-        motionRestored = false;
+    } else {
+        offGroundTicks++;
     }
+}
 
-    @SubscribeEvent
-    public void onPreMotion(PreMotionEvent event) {
-        if (!isActive) return;
+@Override
+public void onDisable() {
+    isFinished = false;
+    offGroundTicks = 0;
+}
 
-        if (!mc.thePlayer.onGround) {
-            offGroundTicks++;
-            if (offGroundTicks >= 10) {
-                PacketUtils.sendPacketNoEvent(new C03PacketPlayer.C04PacketPlayerPosition(
-                        mc.thePlayer.posX, mc.thePlayer.posY + 0.04, mc.thePlayer.posZ, false));
-                progress = Math.min(progress + 10, 100);
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public void onReceivePacket(ReceivePacketEvent event) {
-        if (event.getPacket() instanceof S08PacketPlayerPosLook) {
-            correctionCount++;
-            if (correctionCount >= 5) {
-                sendMessage("Warning: Anti-cheat corrections detected!");
-                correctionCount = 0;
-                progress = Math.max(progress - 20, 0);
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public void onRender(RenderGameOverlayEvent.Post event) {
-        if (!isActive) return;
-
-        if (event.type == RenderGameOverlayEvent.ElementType.ALL) {
-            ScaledResolution sr = new ScaledResolution(mc);
-            int width = sr.getScaledWidth();
-            int height = sr.getScaledHeight();
-            int barWidth = 150, barHeight = 10, x = (width - barWidth) / 2, y = height / 2 + 50;
-
-            drawBar(x, y, barWidth, barHeight, progress / 100);
-        }
-    }
-
-    private void drawBar(int x, int y, int width, int height, float percentage) {
-        Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer buffer = tessellator.getWorldRenderer();
-        GlStateManager.enableBlend();
-        buffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
-
-        // Background
-        buffer.pos(x, y + height, 0).color(0, 0, 0, 150).endVertex();
-        buffer.pos(x + width, y + height, 0).color(0, 0, 0, 150).endVertex();
-        buffer.pos(x + width, y, 0).color(0, 0, 0, 150).endVertex();
-        buffer.pos(x, y, 0).color(0, 0, 0, 150).endVertex();
-        tessellator.draw();
-
-        // Progress
-        buffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        buffer.pos(x, y + height, 0).color(0, 255, 0, 150).endVertex();
-        buffer.pos(x + (width * percentage), y + height, 0).color(0, 255, 0, 150).endVertex();
-        buffer.pos(x + (width * percentage), y, 0).color(0, 255, 0, 150).endVertex();
-        buffer.pos(x, y, 0).color(0, 255, 0, 150).endVertex();
-        tessellator.draw();
-    }
-
-    protected void sendMessage(String message) {
-        mc.thePlayer.addChatMessage(new ChatComponentText("[MotionDisabler] " + message));
-    }
+@Override
+public void onEnable() {
+    onWorldChange(null);
 }
