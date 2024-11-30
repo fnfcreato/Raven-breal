@@ -1,4 +1,4 @@
-package .modules.impl.world;
+package keystrokesmod.modules.impl.world;
 
 import keystrokesmod.event.PreMotionEvent;
 import keystrokesmod.event.SendPacketEvent;
