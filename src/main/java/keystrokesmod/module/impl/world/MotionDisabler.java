@@ -56,7 +56,7 @@ public class MotionDisabler extends Module {
         if (!mc.thePlayer.onGround) {
             offGroundTicks++;
             if (offGroundTicks >= 10) {
-                PacketUtils.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(
+                PacketUtils.sendPacketNoEvent(new C03PacketPlayer.C04PacketPlayerPosition(
                         mc.thePlayer.posX, mc.thePlayer.posY + 0.04, mc.thePlayer.posZ, false));
                 progress = Math.min(progress + 10, 100);
             }
