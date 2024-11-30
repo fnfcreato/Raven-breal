@@ -4,6 +4,10 @@ import keystrokesmod.event.PreMotionEvent;
 import keystrokesmod.event.SendPacketEvent;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.network.play.server.S07PacketRespawn;
+import keystrokesmod.module.setting.impl.ButtonSetting;
+import keystrokesmod.module.Module;
+import keystrokesmod.module.setting.impl.SliderSetting;
+
 
 public class HypixelFastFallDisabler {
     private boolean jump = false;
