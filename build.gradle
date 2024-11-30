@@ -75,12 +75,8 @@ dependencies {
     implementation 'org.projectlombok:lombok:1.18.34'
     implementation 'org.jetbrains:annotations:24.1.0'
     implementation files('libraries/fastutil-core-8.5.14.jar')
-    implementation files('libraries/json-20220924.jar')
-    implementation files('libraries/discord-rpc.jar')
 
     embed files('libraries/fastutil-core-8.5.14.jar')
-    embed files('libraries/json-20220924.jar')
-    embed files('libraries/discord-rpc.jar')
 }
 
 processResources {
