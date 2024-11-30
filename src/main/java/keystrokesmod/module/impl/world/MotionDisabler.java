@@ -12,6 +12,19 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.Minecraft; // Accesses the Minecraft game instance.
+import net.minecraft.client.gui.ScaledResolution; // Handles GUI scaling.
+import net.minecraft.client.renderer.GlStateManager; // Used for rendering.
+import net.minecraft.client.renderer.Tessellator; // Helps with vertex-based rendering.
+import net.minecraft.client.renderer.WorldRenderer; // Handles world rendering.
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats; // Defines vertex formats.
+import net.minecraft.network.play.client.C03PacketPlayer; // Packet for sending player movement.
+import net.minecraft.network.play.server.S08PacketPlayerPosLook; // Packet for receiving server position corrections.
+import net.minecraft.util.ChatComponentText; // Handles chat messages.
+
+import net.minecraftforge.client.event.RenderGameOverlayEvent; 
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent; 
+
 
 public class MotionDisabler extends Module {
     private boolean isActive = false;
