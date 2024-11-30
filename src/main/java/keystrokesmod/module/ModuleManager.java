@@ -73,7 +73,7 @@ public class ModuleManager {
         this.addModule(new Blink());
         this.addModule(new BurstClicker());
         this.addModule(weather = new Weather());
-        this.addModule(motionDisabler = new MotionDisabler());
+        this.addModule(new MotionDisabler());
         this.addModule(new ClickAssist());
         this.addModule(tower = new Tower());
         this.addModule(skyWars = new SkyWars());
