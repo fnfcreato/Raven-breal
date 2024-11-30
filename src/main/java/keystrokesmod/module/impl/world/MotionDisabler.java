@@ -18,8 +18,9 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import keystrokesmod.module.setting.impl.ButtonSetting;
+import keystrokesmod.module.setting.impl.DescriptionSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
-
+import keystrokesmod.utility.Utils;
 
 
 
@@ -31,8 +32,7 @@ public class MotionDisabler extends Module {
     private boolean motionRestored = false;
 
     public MotionDisabler() {
-        super("MotionDisabler", category.world);
-    }
+        
 
     @Override
     public void onEnable() {
