@@ -64,6 +64,7 @@ public class ModuleManager {
     public static AutoTool autoTool;
     public static Sprint sprint;
     public static Weather weather;
+    public static MotionDisabler motiondisabler;
 
     public void register() {
         this.addModule(autoClicker = new AutoClicker());
