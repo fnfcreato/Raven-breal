@@ -21,7 +21,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats; // Defines ver
 import net.minecraft.network.play.client.C03PacketPlayer; // Packet for sending player movement.
 import net.minecraft.network.play.server.S08PacketPlayerPosLook; // Packet for receiving server position corrections.
 import net.minecraft.util.ChatComponentText; // Handles chat messages.
-
+import keystrokesmod.module.ModuleManager; // fixed this, dawg im so blind Ah
 import net.minecraftforge.client.event.RenderGameOverlayEvent; 
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent; 
 
