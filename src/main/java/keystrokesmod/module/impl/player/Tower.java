@@ -24,6 +24,7 @@ public class Tower extends Module {
     private int slowTicks;
     private boolean wasTowering;
     private int offGroundTicks;
+
     public Tower() {
         super("Tower", category.player);
         this.registerSetting(new DescriptionSetting("Works with Safewalk & Scaffold"));
@@ -45,66 +46,69 @@ public class Tower extends Module {
         if (mc.thePlayer.onGround) {
             offGroundTicks = 0;
         }
+
         if (canTower()) {
             wasTowering = true;
-            if (Utils.gbps(mc.thePlayer, 4) < 5.7487 || mode.getInput() == 0) {
-                Utils.setSpeed(Utils.getHorizontalSpeed() + 0.005 * (Utils.isDiagonal(false) ? diagonalSpeed.getInput() : speed.getInput()));
-            }
-            switch ((int) mode.getInput()) {
-                case 0:
-                    mc.thePlayer.motionY = 0.41965;
-                    switch (offGroundTicks) {
-                        case 1:
-                            mc.thePlayer.motionY = 0.33;
-                            break;
-                        case 2:
-                            mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
-                            break;
-                    }
-                    if (offGroundTicks >= 3) {
-                        offGroundTicks = 0;
-                    }
-                case 1:
-                    if (mc.thePlayer.onGround) {
-                        mc.thePlayer.motionY = 0.4196;
-                    }
-                    else {
-                        switch (offGroundTicks) {
-                            case 3:
-                            case 4:
-                                mc.thePlayer.motionY = 0;
-                                break;
-                            case 5:
-                                mc.thePlayer.motionY = 0.4191;
-                                break;
-                            case 6:
-                                mc.thePlayer.motionY = 0.3275;
-                                break;
-                            case 11:
-                                mc.thePlayer.motionY = - 0.5;
 
-                        }
+            // Adjust speed if conditions are met
+            if (Utils.gbps(mc.thePlayer, 4) < 5.7487 || mode.getInput() == 0) {
+                double adjustedSpeed = Utils.getHorizontalSpeed() + 
+                        0.005 * (Utils.isDiagonal(false) ? diagonalSpeed.getInput() : speed.getInput());
+                Utils.setSpeed(adjustedSpeed);
+            }
+
+            // Handle vertical motion for towering
+            if (mode.getInput() == 0) { // Vanilla mode
+                mc.thePlayer.motionY = 0.41965;
+                switch (offGroundTicks) {
+                    case 1:
+                        mc.thePlayer.motionY = 0.33;
+                        break;
+                    case 2:
+                        mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
+                        break;
+                }
+                if (offGroundTicks >= 3) {
+                    offGroundTicks = 0;
+                }
+            } else if (mode.getInput() == 1) { // Low mode
+                if (mc.thePlayer.onGround) {
+                    mc.thePlayer.motionY = 0.4196;
+                } else {
+                    switch (offGroundTicks) {
+                        case 3:
+                        case 4:
+                            mc.thePlayer.motionY = 0;
+                            break;
+                        case 5:
+                            mc.thePlayer.motionY = 0.4191;
+                            break;
+                        case 6:
+                            mc.thePlayer.motionY = 0.3275;
+                            break;
+                        case 11:
+                            mc.thePlayer.motionY = -0.5;
+                            break;
                     }
-                    break;
-            }
-        }
-        else {
-            if (wasTowering && slowedTicks.getInput() > 0 && modulesEnabled()) {
-                if (slowTicks++ < slowedTicks.getInput()) {
-                    Utils.setSpeed(Math.max(slowedSpeed.getInput() * 0.1 - 0.25, 0));
-                }
-                else {
-                    slowTicks = 0;
-                    wasTowering = false;
                 }
             }
-            else {
-                if (wasTowering) {
-                    wasTowering = false;
-                }
-                slowTicks = 0;
-            }
+        } else {
+            handleSlowSpeed();
             reset();
+        }
+    }
+
+    private void handleSlowSpeed() {
+        if (wasTowering && slowedTicks.getInput() > 0 && modulesEnabled()) {
+            if (slowTicks++ < slowedTicks.getInput()) {
+                Utils.setSpeed(Math.max(slowedSpeed.getInput() * 0.1 - 0.25, 0));
+            } else {
+                slowTicks = 0;
+                wasTowering = false;
+            }
+        } else {
+            wasTowering = false;
+            slowTicks = 0;
         }
     }
 
@@ -115,27 +119,25 @@ public class Tower extends Module {
     public boolean canTower() {
         if (!Utils.nullCheck() || !Utils.jumpDown()) {
             return false;
-        }
-        else if (disableWhileHurt.isToggled() && mc.thePlayer.hurtTime >= 9) {
+        } else if (disableWhileHurt.isToggled() && mc.thePlayer.hurtTime >= 9) {
             return false;
-        }
-        else if (disableWhileCollided.isToggled() && mc.thePlayer.isCollidedHorizontally) {
+        } else if (disableWhileCollided.isToggled() && mc.thePlayer.isCollidedHorizontally) {
             return false;
-        }
-        else if ((mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) && disableInLiquid.isToggled()) {
+        } else if ((mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) && disableInLiquid.isToggled()) {
             return false;
-        }
-        else if (modulesEnabled()) {
+        } else if (modulesEnabled()) {
             return true;
         }
         return false;
     }
 
     private boolean modulesEnabled() {
-        return  ((ModuleManager.safeWalk.isEnabled() && ModuleManager.safeWalk.tower.isToggled() && SafeWalk.canSafeWalk()) || (ModuleManager.scaffold.isEnabled() && ModuleManager.scaffold.tower.isToggled()));
+        return (ModuleManager.safeWalk.isEnabled() && ModuleManager.safeWalk.tower.isToggled() && SafeWalk.canSafeWalk()) ||
+               (ModuleManager.scaffold.isEnabled() && ModuleManager.scaffold.tower.isToggled());
     }
 
     public boolean canSprint() {
-        return canTower() && this.sprintJumpForward.isToggled() && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && Utils.jumpDown();
+        return canTower() && sprintJumpForward.isToggled() &&
+               Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && Utils.jumpDown();
     }
 }
