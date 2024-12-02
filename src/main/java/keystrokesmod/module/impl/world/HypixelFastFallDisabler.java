@@ -4,7 +4,7 @@ import keystrokesmod.event.PreMotionEvent;
 import keystrokesmod.event.SendPacketEvent;
 import keystrokesmod.module.Module;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
-import keystrokesmod.module.impl.movement.MixinEntityPlayerSP;
+import keystrokesmod.mixins.impl.entity.MixinEntityPlayerSP;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
