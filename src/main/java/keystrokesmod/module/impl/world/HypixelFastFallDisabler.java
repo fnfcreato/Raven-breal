@@ -6,6 +6,7 @@ import keystrokesmod.module.Module;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import keystrokesmod.mixins.impl.entity.MixinEntityPlayerSP;
 import net.minecraft.util.ChatComponentText;
+import keystrokesmod.mixins.interfaces.IOffGroundTicks;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class HypixelFastFallDisabler extends Module {
@@ -32,27 +33,26 @@ public class HypixelFastFallDisabler extends Module {
     }
 
     @SubscribeEvent
-    public void onPreMotion(PreMotionEvent event) {
-        if (jump) {
-            // Start jump logic
-            jump = false;
-            disabling = true;
-            timeTicks = mc.thePlayer.ticksExisted;
-        } else if (disabling) {
-            int offGroundTicks = mc.thePlayer.getOffGroundTicks();
-            if (offGroundTicks >= 10) {
-                if (offGroundTicks % 2 == 0) {
-                    // Adjust X position for fast-fall
-                    event.setPosX(event.getPosX() + 0.095);
-                }
-                // Freeze player motion
-                mc.thePlayer.motionY = 0;
-                mc.thePlayer.motionX = 0;
-                mc.thePlayer.motionZ = 0;
+public void onPreMotion(PreMotionEvent event) {
+    if (jump) {
+        jump = false;
+        disabling = true;
+        timeTicks = mc.thePlayer.ticksExisted;
+    } else if (disabling && mc.thePlayer instanceof IOffGroundTicks) {
+        int offGroundTicks = ((IOffGroundTicks) mc.thePlayer).getOffGroundTicks();
+        if (offGroundTicks >= 10) {
+            if (offGroundTicks % 2 == 0) {
+                event.setPosX(event.getPosX() + 0.095);
             }
+            mc.thePlayer.motionY = 0;
+            mc.thePlayer.motionX = 0;
+            mc.thePlayer.motionZ = 0;
         }
     }
+}
+    
 
+    
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
         if (event.getPacket() instanceof S08PacketPlayerPosLook) {
