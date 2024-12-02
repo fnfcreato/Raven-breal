@@ -98,41 +98,43 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer {
     @Shadow
     private int offGroundTicks;
 
-    @Overwrite
-    public void onUpdate() {
-        if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
-            RotationUtils.prevRenderPitch = RotationUtils.renderPitch;
-            RotationUtils.prevRenderYaw = RotationUtils.renderYaw;
+@Overwrite
+public void onUpdate() {
+    if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
+        RotationUtils.prevRenderPitch = RotationUtils.renderPitch;
+        RotationUtils.prevRenderYaw = RotationUtils.renderYaw;
 
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
 
-            super.onUpdate();
+        super.onUpdate();
 
-            if (this.isRiding()) {
-                this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(this.rotationYaw, this.rotationPitch, this.onGround));
-                this.sendQueue.addToSendQueue(new C0CPacketInput(this.moveStrafing, this.moveForward, this.movementInput.jump, this.movementInput.sneak));
-            } else {
-                this.onUpdateWalkingPlayer();
-            }
-
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
-        }
-    }
-
-
-    public void onUpdate(CallbackInfo ci) {
+        // Update offGroundTicks
         if (mc.thePlayer.onGround) {
-            offGroundTicks = 0;
+            this.setOffGroundTicks(0);
         } else {
-            offGroundTicks++;
+            this.setOffGroundTicks(this.getOffGroundTicks() + 1);
         }
-    }
 
-    // Getter for offGroundTicks
-    public int getOffGroundTicks() {
-        return offGroundTicks;
-    }
+        if (this.isRiding()) {
+            this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(this.rotationYaw, this.rotationPitch, this.onGround));
+            this.sendQueue.addToSendQueue(new C0CPacketInput(this.moveStrafing, this.moveForward, this.movementInput.jump, this.movementInput.sneak));
+        } else {
+            this.onUpdateWalkingPlayer();
+        }
 
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
+    }
+}
+    
+// Getter for offGroundTicks
+public int getOffGroundTicks() {
+    return this.offGroundTicks;
+}
+
+// Setter for offGroundTicks
+public void setOffGroundTicks(int ticks) {
+    this.offGroundTicks = ticks;
+}
     
     @Overwrite
     public void onUpdateWalkingPlayer() {
