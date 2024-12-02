@@ -119,6 +119,21 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer {
         }
     }
 
+
+    public void onUpdate(CallbackInfo ci) {
+        if (mc.thePlayer.onGround) {
+            offGroundTicks = 0;
+        } else {
+            offGroundTicks++;
+        }
+    }
+
+    // Getter for offGroundTicks
+    public int getOffGroundTicks() {
+        return offGroundTicks;
+    }
+
+    
     @Overwrite
     public void onUpdateWalkingPlayer() {
         PreMotionEvent preMotionEvent = new PreMotionEvent(
