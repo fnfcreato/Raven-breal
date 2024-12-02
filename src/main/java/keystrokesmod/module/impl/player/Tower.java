@@ -157,5 +157,3 @@ public class Tower extends Module {
         offGroundTicks = 0;
     }
 }
-
-Let me know if further adjustments are needed!
