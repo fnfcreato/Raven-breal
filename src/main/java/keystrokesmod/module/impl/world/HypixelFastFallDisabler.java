@@ -49,14 +49,7 @@ public class HypixelFastFallDisabler extends Module {
             mc.thePlayer.motionY = mc.thePlayer.motionX = mc.thePlayer.motionZ = 0;
         }
     }
-    @SubscribeEvent
-public void onUpdate() {
-    if (mc.thePlayer.onGround) {
-        offGroundTicks = 0;
-    } else {
-        offGroundTicks++;
-    }
-}
+
     
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
