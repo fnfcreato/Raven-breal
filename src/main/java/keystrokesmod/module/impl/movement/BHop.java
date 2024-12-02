@@ -69,14 +69,15 @@ public class BHop extends Module {
     }
 
     private void handleStrafeMode() {
-        if (Utils.isMoving()) {
-            if (mc.thePlayer.onGround && autoJump.isToggled()) {
-                mc.thePlayer.jump();
-            }
-            mc.thePlayer.setSprinting(true);
-            Utils.setHorizontalSpeed(Utils.getHorizontalSpeed() + 0.005 * speedSetting.getInput());
-            hopping = true;
+    if (Utils.isMoving()) {
+        if (mc.thePlayer.onGround && autoJump.isToggled()) {
+            mc.thePlayer.jump();
         }
+        mc.thePlayer.setSprinting(true);
+        double currentSpeed = Utils.getHorizontalSpeed();
+        Utils.setHorizontalSpeed(mc.thePlayer, currentSpeed + 0.005 * speedSetting.getInput());
+        hopping = true;
+    }
     }
 
     private void handleGroundMode() {
