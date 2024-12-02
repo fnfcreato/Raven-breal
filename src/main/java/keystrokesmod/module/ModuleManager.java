@@ -188,7 +188,7 @@ public class ModuleManager {
         return categML;
     }
 
-    public Module getModule(String moduleName) {
+    public static Module getModule(String moduleName) {
         for (Module module : modules) {
             if (module.getName().equals(moduleName)) {
                 return module;
