@@ -131,9 +131,9 @@ public class BHop extends Module {
                 }
             }
         } else {
-            if (((MixinEntityPlayerSP) mc.thePlayer).getOffGroundTicks() == 5 && mc.thePlayer.hurtTime < 5 && 
-                !ModuleManager.getModule("Disabler").isEnabled()) {
-                mc.thePlayer.motionY = -0.1523351824467155;
+            if (mc.thePlayer.getOffGroundTicks() == 5 && mc.thePlayer.hurtTime < 5 &&
+    !ModuleManager.getModule("Disabler").isEnabled()) {
+    mc.thePlayer.motionY = -0.1523351824467155;
             }
             mc.thePlayer.motionX *= 1.0005;
             mc.thePlayer.motionZ *= 1.0005;
