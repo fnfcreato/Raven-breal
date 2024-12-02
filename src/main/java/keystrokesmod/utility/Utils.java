@@ -827,6 +827,10 @@ public class Utils {
 
     }
 
+    public static double getJumpHeight() {
+    return 0.42; // Default jump height in Minecraft
+    }
+    
     public static String uf(String s) {
         return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
