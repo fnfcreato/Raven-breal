@@ -7,7 +7,7 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.network.play.server.S07PacketRespawn;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
-import net.minecraft.util.ChatComponentText
+import net.minecraft.util.ChatComponentText;
     
 public class HypixelFastFallDisabler extends Module {
     private boolean jump = false;
