@@ -39,7 +39,7 @@ public class HypixelFastFallDisabler extends Module {
             disabling = true;
             timeTicks = mc.thePlayer.ticksExisted;
         } else if (disabling) {
-            int offGroundTicks = ((MixinEntityPlayerSP) mc.thePlayer).getOffGroundTicks();
+            int offGroundTicks = mc.thePlayer.getOffGroundTicks();
             if (offGroundTicks >= 10) {
                 if (offGroundTicks % 2 == 0) {
                     // Adjust X position for fast-fall
