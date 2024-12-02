@@ -20,7 +20,7 @@ public class BHop extends Module {
     private ButtonSetting liquidDisable;
     private ButtonSetting sneakDisable;
     private ButtonSetting stopMotion;
-    private String[] modes = new String[]{"Strafe", "Ground", "FastFall"}; // Added FastFall
+    private final String[] modes = new String[]{"Strafe", "Ground", "FastFall"}; // Added FastFall
     public boolean hopping;
 
     public BHop() {
@@ -69,15 +69,15 @@ public class BHop extends Module {
     }
 
     private void handleStrafeMode() {
-    if (Utils.isMoving()) {
-        if (mc.thePlayer.onGround && autoJump.isToggled()) {
-            mc.thePlayer.jump();
+        if (Utils.isMoving()) {
+            if (mc.thePlayer.onGround && autoJump.isToggled()) {
+                mc.thePlayer.jump();
+            }
+            mc.thePlayer.setSprinting(true);
+            double currentSpeed = Utils.getHorizontalSpeed(mc.thePlayer);
+            Utils.setHorizontalSpeed(mc.thePlayer, currentSpeed + 0.005 * speedSetting.getInput());
+            hopping = true;
         }
-        mc.thePlayer.setSprinting(true);
-        double currentSpeed = Utils.getHorizontalSpeed();
-        Utils.setHorizontalSpeed(mc.thePlayer, currentSpeed + 0.005 * speedSetting.getInput());
-        hopping = true;
-    }
     }
 
     private void handleGroundMode() {
@@ -91,7 +91,7 @@ public class BHop extends Module {
                 return;
             }
             mc.thePlayer.setSprinting(true);
-            double horizontalSpeed = Utils.getHorizontalSpeed();
+            double horizontalSpeed = Utils.getHorizontalSpeed(mc.thePlayer);
             double speedModifier = 0.4847;
             final int speedAmplifier = Utils.getSpeedAmplifier();
             switch (speedAmplifier) {
@@ -109,7 +109,7 @@ public class BHop extends Module {
             if (horizontalSpeed < additionalSpeed) {
                 horizontalSpeed = additionalSpeed;
             }
-            Utils.setHorizontalSpeed(horizontalSpeed);
+            Utils.setHorizontalSpeed(mc.thePlayer, horizontalSpeed);
             hopping = true;
         }
     }
@@ -117,20 +117,20 @@ public class BHop extends Module {
     private void handleFastFallMode() {
         if (mc.thePlayer.onGround) {
             if (Utils.isMoving()) {
-                Utils.setHorizontalSpeed(Utils.getHorizontalSpeed() + 0.23f);
+                Utils.setHorizontalSpeed(mc.thePlayer, Utils.getHorizontalSpeed(mc.thePlayer) + 0.23f);
                 mc.thePlayer.motionY = Utils.getJumpHeight();
                 mc.thePlayer.motionX *= 0.95;
                 mc.thePlayer.motionZ *= 0.95;
-                if (Utils.getHorizontalSpeed() < 0.46f) {
-                    Utils.setHorizontalSpeed(0.46f);
+                if (Utils.getHorizontalSpeed(mc.thePlayer) < 0.46f) {
+                    Utils.setHorizontalSpeed(mc.thePlayer, 0.46f);
                 }
                 if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                     float amplifier = mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier();
-                    Utils.setHorizontalSpeed(0.47f + 0.024f * (amplifier + 1));
+                    Utils.setHorizontalSpeed(mc.thePlayer, 0.47f + 0.024f * (amplifier + 1));
                 }
             }
         } else {
-            if (((MixinEntityPlayerSP)mc.thePlayer).offGroundTicks == 5 && mc.thePlayer.hurtTime < 5 && 
+            if (((MixinEntityPlayerSP) mc.thePlayer).getOffGroundTicks() == 5 && mc.thePlayer.hurtTime < 5 && 
                 !ModuleManager.getModule("Disabler").isEnabled()) {
                 mc.thePlayer.motionY = -0.1523351824467155;
             }
