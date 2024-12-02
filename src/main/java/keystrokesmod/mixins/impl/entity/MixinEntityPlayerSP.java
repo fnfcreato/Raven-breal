@@ -95,6 +95,8 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer {
     private float lastReportedPitch;
     @Shadow
     private int positionUpdateTicks;
+    @Shadow
+    private int offGroundTicks;
 
     @Overwrite
     public void onUpdate() {
