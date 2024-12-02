@@ -4,9 +4,7 @@ import keystrokesmod.event.PreMotionEvent;
 import keystrokesmod.event.SendPacketEvent;
 import keystrokesmod.module.Module;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
-import net.minecraft.network.play.server.S07PacketRespawn;
-import keystrokesmod.module.setting.impl.ButtonSetting;
-import keystrokesmod.module.setting.impl.SliderSetting;
+import keystrokesmod.module.impl.movement.MixinEntityPlayerSP;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -40,24 +38,24 @@ public class HypixelFastFallDisabler extends Module {
             jump = false;
             disabling = true;
             timeTicks = mc.thePlayer.ticksExisted;
-        } else if (disabling && mc.thePlayer.offGroundTicks >= 10) {
-            if (mc.thePlayer.offGroundTicks % 2 == 0) {
-                // Adjust X position for fast-fall
-                event.setPosX(event.getPosX() + 0.095);
+        } else if (disabling) {
+            int offGroundTicks = ((MixinEntityPlayerSP) mc.thePlayer).getOffGroundTicks();
+            if (offGroundTicks >= 10) {
+                if (offGroundTicks % 2 == 0) {
+                    // Adjust X position for fast-fall
+                    event.setPosX(event.getPosX() + 0.095);
+                }
+                // Freeze player motion
+                mc.thePlayer.motionY = 0;
+                mc.thePlayer.motionX = 0;
+                mc.thePlayer.motionZ = 0;
             }
-            // Freeze player motion
-            mc.thePlayer.motionY = mc.thePlayer.motionX = mc.thePlayer.motionZ = 0;
         }
     }
 
-    
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
-        if (event.getPacket() instanceof S07PacketRespawn) {
-            jump = true;
-            // Reset jump state after respawn
-            sendMessageToPlayer("Hypixel Fast Fall reset after respawn.");
-        } else if (event.getPacket() instanceof S08PacketPlayerPosLook) {
+        if (event.getPacket() instanceof S08PacketPlayerPosLook) {
             testTicks++;
             if (testTicks == 30) {
                 disabling = false;
@@ -66,7 +64,9 @@ public class HypixelFastFallDisabler extends Module {
                 sendMessageToPlayer("Hypixel Fast Fall disabled in " + timeTicks + " ticks!");
             } else {
                 // Maintain freeze while disabling
-                mc.thePlayer.motionY = mc.thePlayer.motionX = mc.thePlayer.motionZ = 0;
+                mc.thePlayer.motionY = 0;
+                mc.thePlayer.motionX = 0;
+                mc.thePlayer.motionZ = 0;
             }
         }
     }
