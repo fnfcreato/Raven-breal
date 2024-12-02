@@ -8,7 +8,7 @@ import net.minecraft.network.play.server.S07PacketRespawn;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import net.minecraft.util.ChatComponentText;
-    
+
 public class HypixelFastFallDisabler extends Module {
     private boolean jump = false;
     private boolean disabling = false;
@@ -31,6 +31,7 @@ public class HypixelFastFallDisabler extends Module {
         jump = false;
         disabling = false;
     }
+
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent event) {
         if (jump) {
@@ -47,6 +48,7 @@ public class HypixelFastFallDisabler extends Module {
             mc.thePlayer.motionY = mc.thePlayer.motionX = mc.thePlayer.motionZ = 0;
         }
     }
+
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
         if (event.getPacket() instanceof S07PacketRespawn) {
@@ -66,9 +68,8 @@ public class HypixelFastFallDisabler extends Module {
             }
         }
     }
-}
 
-private void sendMessageToPlayer(String message) {
+    private void sendMessageToPlayer(String message) {
         if (mc.thePlayer != null) {
             mc.thePlayer.addChatMessage(new ChatComponentText(message));
         }
