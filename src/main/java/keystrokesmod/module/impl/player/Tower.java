@@ -38,7 +38,7 @@ public class Tower extends Module {
         this.registerSetting(disableWhileHurt = new ButtonSetting("Disable while hurt", false));
         this.registerSetting(sprintJumpForward = new ButtonSetting("Sprint jump forward", false));
     }
-
+    
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent e) {
         if (mc.thePlayer.onGround) {
@@ -65,6 +65,19 @@ public class Tower extends Module {
         }
     }
 
+    public boolean canSprint() {
+        if (disableWhileHurt.isToggled() && mc.thePlayer.hurtTime >= 5) {
+            return false;
+        }
+        if (disableWhileCollided.isToggled() && mc.thePlayer.isCollidedHorizontally) {
+            return false;
+        }
+        if ((mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) && disableInLiquid.isToggled()) {
+            return false;
+        }
+        return true;
+    }
+    
     public boolean canTower() {
         if (!Utils.nullCheck()) {
             return false;
