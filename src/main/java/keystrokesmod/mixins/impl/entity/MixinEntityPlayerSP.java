@@ -112,44 +112,36 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer {
         this.offGroundTicks = ticks;
     }
 
-    @Overwrite
-    public void onUpdate() {
-        if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
-            // Update rotation utilities
-            RotationUtils.prevRenderPitch = RotationUtils.renderPitch;
-            RotationUtils.prevRenderYaw = RotationUtils.renderYaw;
+ @Overwrite
+public void onUpdate() {
+    if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
+        RotationUtils.prevRenderPitch = RotationUtils.renderPitch;
+        RotationUtils.prevRenderYaw = RotationUtils.renderYaw;
 
-            // Pre-update event
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
+        super.onUpdate();
 
-            // Call the original update logic
-            super.onUpdate();
-
-            // Update offGroundTicks
-            if (mc.thePlayer.onGround) {
-                this.setOffGroundTicks(0);
-            } else {
-                this.setOffGroundTicks(this.getOffGroundTicks() + 1);
-            }
-
-            // Check if sprinting should be stopped
-            if (ModuleManager.tower != null && !ModuleManager.tower.canSprint()) {
-                this.setSprinting(false);
-            }
-
-            // Handle riding or walking
-            if (this.isRiding()) {
-                this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(this.rotationYaw, this.rotationPitch, this.onGround));
-                this.sendQueue.addToSendQueue(new C0CPacketInput(this.moveStrafing, this.moveForward, this.movementInput.jump, this.movementInput.sneak));
-            } else {
-                this.onUpdateWalkingPlayer();
-            }
-
-            // Post-update event
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
+        // Ensure consistent updating of offGroundTicks
+        if (this.onGround) {
+            this.offGroundTicks = 0;
+        } else {
+            this.offGroundTicks++;
         }
-    }
 
+        if (ModuleManager.tower != null && !ModuleManager.tower.canSprint()) {
+            this.setSprinting(false);
+        }
+
+        if (this.isRiding()) {
+            this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(this.rotationYaw, this.rotationPitch, this.onGround));
+            this.sendQueue.addToSendQueue(new C0CPacketInput(this.moveStrafing, this.moveForward, this.movementInput.jump, this.movementInput.sneak));
+        } else {
+            this.onUpdateWalkingPlayer();
+        }
+
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
+    }
+}
     @Overwrite
     public void onUpdateWalkingPlayer() {
         PreMotionEvent preMotionEvent = new PreMotionEvent(
