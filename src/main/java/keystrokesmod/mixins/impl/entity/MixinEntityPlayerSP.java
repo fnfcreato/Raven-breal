@@ -31,6 +31,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(EntityPlayerSP.class)
 public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implements IOffGroundTicks {
+    
     @Shadow
     public int sprintingTicksLeft;
 
@@ -101,18 +102,19 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
     public MixinEntityPlayerSP(World worldIn, GameProfile playerProfile) {
         super(worldIn, playerProfile);
     }
-    
-  @Override
+
+    @Override
     public int getOffGroundTicks() {
         return this.offGroundTicks;
     }
 
-  @Overwrite
+    @Overwrite
     public void onUpdate() {
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
             RotationUtils.prevRenderPitch = RotationUtils.renderPitch;
             RotationUtils.prevRenderYaw = RotationUtils.renderYaw;
 
+            // Trigger PreUpdateEvent
             net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
             super.onUpdate();
 
@@ -123,14 +125,9 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
                 this.offGroundTicks++;
             }
 
-            if (ModuleManager.tower != null && !ModuleManager.tower.canSprint()) {
-                this.setSprinting(false);
-            }
-
             net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
         }
     }
-}
 
     @Overwrite
     public void onUpdateWalkingPlayer() {
@@ -170,11 +167,11 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         }
 
         if (this.isCurrentViewEntity()) {
-            double deltaX = preMotionEvent.getPosX() - this.lastReportedPosX;
-            double deltaY = preMotionEvent.getPosY() - this.lastReportedPosY;
-            double deltaZ = preMotionEvent.getPosZ() - this.lastReportedPosZ;
+            double deltaX = preMotionEvent.getPosX() - this.posX;
+            double deltaY = preMotionEvent.getPosY() - this.posY;
+            double deltaZ = preMotionEvent.getPosZ() - this.posZ;
             boolean positionChanged = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ > 9.0E-4 || this.positionUpdateTicks >= 20;
-            boolean rotationChanged = preMotionEvent.getYaw() != this.lastReportedYaw || preMotionEvent.getPitch() != this.lastReportedPitch;
+            boolean rotationChanged = preMotionEvent.getYaw() != this.rotationYaw || preMotionEvent.getPitch() != this.rotationPitch;
 
             if (positionChanged && rotationChanged) {
                 this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(preMotionEvent.getPosX(), preMotionEvent.getPosY(), preMotionEvent.getPosZ(), preMotionEvent.getYaw(), preMotionEvent.getPitch(), preMotionEvent.isOnGround()));
@@ -186,11 +183,11 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
                 this.sendQueue.addToSendQueue(new C03PacketPlayer(preMotionEvent.isOnGround()));
             }
 
-            this.lastReportedPosX = preMotionEvent.getPosX();
-            this.lastReportedPosY = preMotionEvent.getPosY();
-            this.lastReportedPosZ = preMotionEvent.getPosZ();
-            this.lastReportedYaw = preMotionEvent.getYaw();
-            this.lastReportedPitch = preMotionEvent.getPitch();
+            this.posX = preMotionEvent.getPosX();
+            this.posY = preMotionEvent.getPosY();
+            this.posZ = preMotionEvent.getPosZ();
+            this.rotationYaw = preMotionEvent.getYaw();
+            this.rotationPitch = preMotionEvent.getPitch();
             this.positionUpdateTicks = 0;
         }
 
