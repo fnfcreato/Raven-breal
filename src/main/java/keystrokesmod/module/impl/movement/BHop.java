@@ -9,6 +9,7 @@ import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.utility.RotationUtils;
 import keystrokesmod.utility.Utils;
+import keystrokesmod.mixins.interfaces.IOffGroundTicks;
 import net.minecraft.potion.Potion;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
@@ -131,7 +132,7 @@ public class BHop extends Module {
                 }
             }
         } else {
-            if (mc.thePlayer.getOffGroundTicks() == 5 && mc.thePlayer.hurtTime < 5 &&
+            if (mc.thePlayer.IOffGroundTicks() == 5 && mc.thePlayer.hurtTime < 5 &&
     !ModuleManager.getModule("Disabler").isEnabled()) {
     mc.thePlayer.motionY = -0.1523351824467155;
             }
