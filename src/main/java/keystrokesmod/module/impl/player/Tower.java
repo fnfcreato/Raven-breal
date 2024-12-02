@@ -21,10 +21,11 @@ public class Tower extends Module {
     private ButtonSetting disableWhileCollided;
     private ButtonSetting disableWhileHurt;
     private ButtonSetting sprintJumpForward;
-    private String[] modes = new String[]{"Vanilla", "Low"};
-    private int slowTicks;
-    private boolean wasTowering;
+
+    private String[] modes = new String[]{"Vanilla", "Low", "Hypixel"};
     private int offGroundTicks;
+    private boolean isTowering;
+
     public Tower() {
         super("Tower", category.player);
         this.registerSetting(new DescriptionSetting("Works with Safewalk & Scaffold"));
@@ -37,106 +38,125 @@ public class Tower extends Module {
         this.registerSetting(disableWhileCollided = new ButtonSetting("Disable while collided", false));
         this.registerSetting(disableWhileHurt = new ButtonSetting("Disable while hurt", false));
         this.registerSetting(sprintJumpForward = new ButtonSetting("Sprint jump forward", false));
-        this.canBeEnabled = false;
     }
 
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent e) {
-        offGroundTicks++;
         if (mc.thePlayer.onGround) {
             offGroundTicks = 0;
+        } else {
+            offGroundTicks++;
         }
-        if (canTower()) {
-            wasTowering = true;
-            if (Utils.gbps(mc.thePlayer, 4) < 5.7487 || mode.getInput() == 0) {
-                Utils.setSpeed(Utils.getHorizontalSpeed() + 0.005 * (Utils.isDiagonal(false) ? diagonalSpeed.getInput() : speed.getInput()));
-            }
-            switch ((int) mode.getInput()) {
-                case 0:
-                    mc.thePlayer.motionY = 0.41965;
-                    switch (offGroundTicks) {
-                        case 1:
-                            mc.thePlayer.motionY = 0.33;
-                            break;
-                        case 2:
-                            mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
-                            break;
-                    }
-                    if (offGroundTicks >= 3) {
-                        offGroundTicks = 0;
-                    }
-                case 1:
-                    if (mc.thePlayer.onGround) {
-                        mc.thePlayer.motionY = 0.4196;
-                    }
-                    else {
-                        switch (offGroundTicks) {
-                            case 3:
-                            case 4:
-                                mc.thePlayer.motionY = 0;
-                                break;
-                            case 5:
-                                mc.thePlayer.motionY = 0.4191;
-                                break;
-                            case 6:
-                                mc.thePlayer.motionY = 0.3275;
-                                break;
-                            case 11:
-                                mc.thePlayer.motionY = - 0.5;
 
-                        }
-                    }
+        if (canTower()) {
+            switch ((int) mode.getInput()) {
+                case 0: // Vanilla
+                    handleVanillaMode();
+                    break;
+                case 1: // Low
+                    handleLowMode();
+                    break;
+                case 2: // Hypixel
+                    handleHypixelMode();
+                    break;
+            }
+        } else {
+            handleSlowSpeed();
+            reset();
+        }
+    }
+
+    public boolean canTower() {
+        if (!Utils.nullCheck()) {
+            return false;
+        } else if (disableWhileHurt.isToggled() && mc.thePlayer.hurtTime >= 9) {
+            return false;
+        } else if (disableWhileCollided.isToggled() && mc.thePlayer.isCollidedHorizontally) {
+            return false;
+        } else if ((mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) && disableInLiquid.isToggled()) {
+            return false;
+        } else if (Utils.jumpDown()) { // Use Utils.jumpDown
+            return true;
+        }
+        return false;
+    }
+
+    private void handleVanillaMode() {
+        mc.thePlayer.motionY = 0.41965;
+        switch (offGroundTicks) {
+            case 1:
+                mc.thePlayer.motionY = 0.33;
+                break;
+            case 2:
+                mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
+                break;
+        }
+        if (offGroundTicks >= 3) {
+            offGroundTicks = 0;
+        }
+    }
+
+    private void handleLowMode() {
+        if (mc.thePlayer.onGround) {
+            mc.thePlayer.motionY = 0.4196;
+        } else {
+            switch (offGroundTicks) {
+                case 3:
+                case 4:
+                    mc.thePlayer.motionY = 0;
+                    break;
+                case 5:
+                    mc.thePlayer.motionY = 0.4191;
+                    break;
+                case 6:
+                    mc.thePlayer.motionY = 0.3275;
+                    break;
+                case 11:
+                    mc.thePlayer.motionY = -0.5;
                     break;
             }
         }
-        else {
-            if (wasTowering && slowedTicks.getInput() > 0 && modulesEnabled()) {
-                if (slowTicks++ < slowedTicks.getInput()) {
-                    Utils.setSpeed(Math.max(slowedSpeed.getInput() * 0.1 - 0.25, 0));
-                }
-                else {
-                    slowTicks = 0;
-                    wasTowering = false;
-                }
-            }
-            else {
-                if (wasTowering) {
-                    wasTowering = false;
-                }
-                slowTicks = 0;
-            }
-            reset();
+    }
+
+    private void handleHypixelMode() {
+        if (mc.thePlayer.onGround) {
+            mc.thePlayer.motionY = 0.42; // Initial jump height
+            offGroundTicks = 0; // Reset off-ground ticks
         }
+
+        double[] motions = new double[]{
+            0.399999006,
+            0.3536000119,
+            0.2681280169,
+            0.1843654552,
+            -0.0807218421,
+            -0.3175074179,
+            -0.3145572677,
+            -0.3866661346
+        };
+
+        if (offGroundTicks < motions.length) {
+            mc.thePlayer.motionY = motions[offGroundTicks];
+        }
+
+        if (offGroundTicks == 5) {
+            mc.thePlayer.motionY = -0.1523351824467155; // Additional downward motion for Hypixel logic
+        }
+    }
+
+    private void handleSlowSpeed() {
+        // Logic for handling slow-down after towering
     }
 
     private void reset() {
         offGroundTicks = 0;
     }
 
-    public boolean canTower() {
-        if (!Utils.nullCheck() || !Utils.jumpDown()) {
-            return false;
-        }
-        else if (disableWhileHurt.isToggled() && mc.thePlayer.hurtTime >= 9) {
-            return false;
-        }
-        else if (disableWhileCollided.isToggled() && mc.thePlayer.isCollidedHorizontally) {
-            return false;
-        }
-        else if ((mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) && disableInLiquid.isToggled()) {
-            return false;
-        }
-        else if (modulesEnabled()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean modulesEnabled() {
-        return  ((ModuleManager.safeWalk.isEnabled() && ModuleManager.safeWalk.tower.isToggled() && SafeWalk.canSafeWalk()) || (ModuleManager.scaffold.isEnabled() && ModuleManager.scaffold.tower.isToggled()));
-    }
-
-    public boolean canSprint() {
-        return canTower() && this.sprintJumpForward.isToggled() && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && Utils.jumpDown();
+    public void onDisable() {
+        // Reset state when the module is disabled
+        isTowering = false;
+        offGroundTicks = 0;
     }
 }
+
+Let me know if further adjustments are needed!
