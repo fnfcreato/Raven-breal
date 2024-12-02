@@ -9,7 +9,6 @@ import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.utility.Utils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
-import keystrokesmod.event.JumpEvent;
 
 public class Tower extends Module {
     private SliderSetting mode;
