@@ -628,6 +628,15 @@ public class Utils {
         return n * 0.017453292f;
     }
 
+    public static void setHorizontalSpeed(Entity entity, double speed) {
+    double currentSpeed = getHorizontalSpeed(entity);
+    if (currentSpeed > 0) {
+        double ratio = speed / currentSpeed;
+        entity.motionX *= ratio;
+        entity.motionZ *= ratio;
+    }
+ }
+    
     public static double getHorizontalSpeed() {
         return getHorizontalSpeed(mc.thePlayer);
     }
