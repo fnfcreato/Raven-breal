@@ -1,4 +1,4 @@
-package keystrokesmod.module.impl.exploit;
+package keystrokesmod.module.impl.world;
 
 import keystrokesmod.event.PreMotionEvent;
 import keystrokesmod.event.SendPacketEvent;
@@ -8,6 +8,7 @@ import net.minecraft.network.play.server.S07PacketRespawn;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import net.minecraft.util.ChatComponentText;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class HypixelFastFallDisabler extends Module {
     private boolean jump = false;
