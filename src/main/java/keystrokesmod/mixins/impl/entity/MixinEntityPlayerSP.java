@@ -108,8 +108,8 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         System.out.println("getOffGroundTicks called: " + offGroundTicks); // Debug
         return this.offGroundTicks;
     }
-
-    @Overwrite
+    
+@Overwrite
 public void onUpdate() {
     if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
         RotationUtils.prevRenderPitch = RotationUtils.renderPitch;
@@ -119,19 +119,19 @@ public void onUpdate() {
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
         super.onUpdate();
 
+        // Track ground state and log only when it changes
+        boolean isCurrentlyOnGround = this.onGround;
+        if (isCurrentlyOnGround && this.offGroundTicks > 0) {
+            System.out.println("[DEBUG] Player is on the ground");
+        } else if (!isCurrentlyOnGround && this.offGroundTicks == 0) {
+            System.out.println("[DEBUG] Player is off the ground");
+        }
+
         // Update offGroundTicks
-        if (this.onGround) {
+        if (isCurrentlyOnGround) {
             this.offGroundTicks = 0;
-            // Log only once when player lands
-            if (this.offGroundTicks == 0) {
-                System.out.println("[DEBUG] Player is on the ground");
-            }
         } else {
             this.offGroundTicks++;
-            // Log only once when player leaves ground
-            if (this.offGroundTicks == 1) {
-                System.out.println("[DEBUG] Player is off the ground");
-            }
         }
 
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
