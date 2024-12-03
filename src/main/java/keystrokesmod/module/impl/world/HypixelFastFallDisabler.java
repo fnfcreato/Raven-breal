@@ -19,57 +19,56 @@ public class HypixelFastFallDisabler extends Module {
         super("Hypixel Fast Fall", Module.category.world, 0);
     }
 
+    @SubscribeEvent
+    public void onPreMotion(PreMotionEvent event) {
+        if (!disabling && jump) {
+            jump = false;
+            disabling = true;
+            timeTicks = mc.thePlayer.ticksExisted;
+            System.out.println("[DEBUG] Disabler started, ticks: " + timeTicks);
+        }
 
-   @SubscribeEvent
-public void onPreMotion(PreMotionEvent event) {
-    if (!disabling && jump) {
-        jump = false;
-        disabling = true;
-        timeTicks = mc.thePlayer.ticksExisted;
-        System.out.println("[DEBUG] Disabler started, ticks: " + timeTicks);
-    }
+        if (disabling) {
+            int offGroundTicks = ((IOffGroundTicks) mc.thePlayer).getOffGroundTicks();
 
-    if (disabling) {
-        int offGroundTicks = ((IOffGroundTicks) mc.thePlayer).getOffGroundTicks();
+            if (offGroundTicks >= 10) {
+                // Freeze player
+                mc.thePlayer.motionX = 0.0;
+                mc.thePlayer.motionY = 0.0;
+                mc.thePlayer.motionZ = 0.0;
 
-        if (offGroundTicks >= 10) {
-            // Freeze player
-            mc.thePlayer.motionX = 0.0;
-            mc.thePlayer.motionY = 0.0;
-            mc.thePlayer.motionZ = 0.0;
+                if (offGroundTicks % 2 == 0) {
+                    event.setPosX(event.getPosX() + 0.095); // Add slight offset
+                }
 
-            if (offGroundTicks % 2 == 0) {
-                event.setPosX(event.getPosX() + 0.095); // Add slight offset
+                System.out.println("[DEBUG] Freezing player, offGroundTicks: " + offGroundTicks);
+            } else {
+                // Exit disabling state when offGroundTicks are below threshold
+                disabling = false;
+                System.out.println("[DEBUG] Disabling logic cleared");
             }
-
-            System.out.println("[DEBUG] Freezing player, offGroundTicks: " + offGroundTicks);
-        } else {
-            // Exit disabling state when offGroundTicks are below threshold
-            disabling = false;
-            System.out.println("[DEBUG] Disabling logic cleared");
         }
     }
-}
-    
+
     @SubscribeEvent
-public void onSendPacket(SendPacketEvent event) {
-    if (event.getPacket() instanceof S08PacketPlayerPosLook) {
-    testTicks++;
-    if (testTicks == 30) { // End disabling after 30 ticks
-        disabling = false;
-        testTicks = 0;
+    public void onSendPacket(SendPacketEvent event) {
+        if (event.getPacket() instanceof S08PacketPlayerPosLook) {
+            testTicks++;
+            if (testTicks == 30) { // End disabling after 30 ticks
+                disabling = false;
+                testTicks = 0;
 
-        int totalTicks = mc.thePlayer.ticksExisted - timeTicks;
-        sendMessageToPlayer("Hypixel Fast Fall disabled in " + totalTicks + " ticks!");
-        System.out.println("[DEBUG] Disabler ended after " + totalTicks + " ticks.");
+                int totalTicks = mc.thePlayer.ticksExisted - timeTicks;
+                sendMessageToPlayer("Hypixel Fast Fall disabled in " + totalTicks + " ticks!");
+                System.out.println("[DEBUG] Disabler ended after " + totalTicks + " ticks.");
 
-        // Ensure player regains control
-        mc.thePlayer.motionX = 0.0;
-        mc.thePlayer.motionY = -0.0784; // Allow natural gravity to resume
-        mc.thePlayer.motionZ = 0.0;
+                // Ensure player regains control
+                mc.thePlayer.motionX = 0.0;
+                mc.thePlayer.motionY = -0.0784; // Allow natural gravity to resume
+                mc.thePlayer.motionZ = 0.0;
+            }
+        }
     }
-    }
-        
 
     @Override
     public void onDisable() {
