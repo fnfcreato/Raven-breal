@@ -10,84 +10,88 @@ import keystrokesmod.mixins.interfaces.IOffGroundTicks;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class HypixelFastFallDisabler extends Module {
-    private boolean isFinished = false; // Track module's state
-    private int flagged = 0; // Counter for flagged packets
-    private int offGroundTicks = 0; // Track off-ground ticks
-
-    public static ButtonSetting disableMessage = new ButtonSetting("Disable Message", true); // Optional setting for messaging
+    private boolean jump = true;
+    private boolean disabling = false;
+    private int testTicks = 0;
+    private int timeTicks = 0;
 
     public HypixelFastFallDisabler() {
         super("Hypixel Fast Fall", Module.category.world, 0);
-        this.registerSetting(disableMessage);
     }
 
-     @SubscribeEvent
+    @SubscribeEvent
     public void onPreMotion(PreMotionEvent event) {
-        if (isFinished || !(mc.thePlayer instanceof IOffGroundTicks)) return;
-
-        offGroundTicks = ((IOffGroundTicks) mc.thePlayer).getOffGroundTicks();
-
-        if (offGroundTicks >= 10) {
-            if (offGroundTicks % 2 == 0) {
-                event.setPosX(event.getPosX() + 0.095);
+        if (jump) {
+            // Initialize jump state
+            jump = false;
+            disabling = true;
+            timeTicks = mc.thePlayer.ticksExisted;
+        } else if (disabling && mc.thePlayer instanceof IOffGroundTicks) {
+            // Handle disabling logic
+            int offGroundTicks = ((IOffGroundTicks) mc.thePlayer).getOffGroundTicks();
+            if (offGroundTicks >= 10) {
+                if (offGroundTicks % 2 == 0) {
+                    event.setPosX(event.getPosX() + 0.095);
+                }
+                // Freeze player motion during disabler
+                mc.thePlayer.motionX = 0;
+                mc.thePlayer.motionY = 0;
+                mc.thePlayer.motionZ = 0;
             }
-            mc.thePlayer.motionX = 0;
-            mc.thePlayer.motionY = 0;
-            mc.thePlayer.motionZ = 0;
-        } else {
-            // Restore movement when the disabler is finished
-            mc.thePlayer.motionX *= 0.98;
-            mc.thePlayer.motionZ *= 0.98;
         }
     }
-    
+
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
-        if (event.getPacket() instanceof S08PacketPlayerPosLook && !isFinished) {
-            flagged++;
-            if (flagged == 20) {
-                isFinished = true; // Mark the disabler as finished
-                flagged = 0;
+        if (event.getPacket() instanceof S08PacketPlayerPosLook) {
+            testTicks++;
+            if (testTicks == 30) {
+                disabling = false; // Disable the logic after 30 ticks
+                testTicks = 0;
+                int totalTicks = mc.thePlayer.ticksExisted - timeTicks;
+                sendMessageToPlayer("Hypixel Fast Fall disabled in " + totalTicks + " ticks!");
 
-                if (disableMessage.isToggled()) {
-                    mc.thePlayer.addChatMessage(new ChatComponentText("Hypixel Fast Fall disabled."));
-                }
+                // Restore motion when disabler finishes
+                mc.thePlayer.motionX = 0;
+                mc.thePlayer.motionY = 0;
+                mc.thePlayer.motionZ = 0;
+            } else {
+                // Maintain freeze during disabling
+                mc.thePlayer.motionX = 0;
+                mc.thePlayer.motionY = 0;
+                mc.thePlayer.motionZ = 0;
             }
         }
     }
 
     @Override
-    public void onUpdate() {
-        // Reset offGroundTicks to ensure proper tracking
-        if (mc.thePlayer.onGround) {
-            offGroundTicks = 0;
-        }
+    public void onDisable() {
+        jump = true;
+        disabling = false;
+        testTicks = 0;
+        timeTicks = 0;
+
+        // Restore player motion on module disable
+        mc.thePlayer.motionX = 0;
+        mc.thePlayer.motionY = 0;
+        mc.thePlayer.motionZ = 0;
+
+        sendMessageToPlayer("Hypixel Fast Fall disabled.");
     }
 
     @Override
     public void onEnable() {
-        // Reset state when enabled
-        isFinished = false;
-        flagged = 0;
-        offGroundTicks = 0;
+        jump = true;
+        disabling = false;
+        testTicks = 0;
+        timeTicks = 0;
 
-        if (disableMessage.isToggled()) {
-            mc.thePlayer.addChatMessage(new ChatComponentText("Hypixel Fast Fall enabled."));
-        }
+        sendMessageToPlayer("Hypixel Fast Fall enabled.");
     }
 
-    @Override
-public void onDisable() {
-    isFinished = false;
-    flagged = 0;
-    offGroundTicks = 0;
-
-    // Restore player motion
-    mc.thePlayer.motionX = 0;
-    mc.thePlayer.motionY = 0;
-    mc.thePlayer.motionZ = 0;
-
-    if (disableMessage.isToggled()) {
-        mc.thePlayer.addChatMessage(new ChatComponentText("Hypixel Fast Fall disabled."));
+    private void sendMessageToPlayer(String message) {
+        if (mc.thePlayer != null) {
+            mc.thePlayer.addChatMessage(new ChatComponentText(message));
+        }
     }
 }
