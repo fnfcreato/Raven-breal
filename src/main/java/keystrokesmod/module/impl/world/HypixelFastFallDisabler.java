@@ -19,65 +19,57 @@ public class HypixelFastFallDisabler extends Module {
         super("Hypixel Fast Fall", Module.category.world, 0);
     }
 
-    @SubscribeEvent
-    public void onPreMotion(PreMotionEvent event) {
-        System.out.println("onPreMotion called"); // Debug entry point
-        System.out.println("jump: " + jump + ", disabling: " + disabling + ", testTicks: " + testTicks);
 
-        if (jump) {
-            // Initialize jump state
-            System.out.println("Initializing jump state");
-            jump = false;
-            disabling = true;
-            timeTicks = mc.thePlayer.ticksExisted;
-            System.out.println("timeTicks initialized to: " + timeTicks);
-        } else if (disabling && mc.thePlayer instanceof IOffGroundTicks) {
-            // Handle disabling logic
+   @SubscribeEvent
+public void onPreMotion(PreMotionEvent event) {
+    if (jump) {
+        jump = false;
+        disabling = true;
+        timeTicks = mc.thePlayer.ticksExisted;
+        System.out.println("[DEBUG] Disabler started, ticks: " + timeTicks);
+    }
+
+    if (disabling) {
+        if (mc.thePlayer instanceof IOffGroundTicks) {
             int offGroundTicks = ((IOffGroundTicks) mc.thePlayer).getOffGroundTicks();
-            System.out.println("offGroundTicks: " + offGroundTicks);
 
             if (offGroundTicks >= 10) {
-                System.out.println("Freezing player motion during disabling");
+                // Freeze player during disabling
+                mc.thePlayer.motionX = 0.0;
+                mc.thePlayer.motionZ = 0.0;
+                mc.thePlayer.motionY = 0.0;
+
                 if (offGroundTicks % 2 == 0) {
-                    event.setPosX(event.getPosX() + 0.095);
-                    System.out.println("Adjusting PosX: " + event.getPosX());
+                    event.setPosX(event.getPosX() + 0.095); // Add slight offset
                 }
-                // Freeze player motion during disabler
-                mc.thePlayer.motionX = 0;
-                mc.thePlayer.motionY = 0;
-                mc.thePlayer.motionZ = 0;
+
+                System.out.println("[DEBUG] Freezing player, offGroundTicks: " + offGroundTicks);
             }
         }
     }
-
+    }
+    
     @SubscribeEvent
-    public void onSendPacket(SendPacketEvent event) {
-        System.out.println("onSendPacket called"); // Debug entry point
-        if (event.getPacket() instanceof S08PacketPlayerPosLook) {
-            testTicks++;
-            System.out.println("Received S08PacketPlayerPosLook, testTicks: " + testTicks);
+public void onSendPacket(SendPacketEvent event) {
+    if (event.getPacket() instanceof S08PacketPlayerPosLook) {
+        testTicks++;
+        if (testTicks == 30) { // End disabling after 30 ticks
+            disabling = false;
+            testTicks = 0;
 
-            if (testTicks == 30) {
-                disabling = false; // Disable the logic after 30 ticks
-                testTicks = 0;
-                int totalTicks = mc.thePlayer.ticksExisted - timeTicks;
-                System.out.println("Disabling complete, totalTicks: " + totalTicks);
-                sendMessageToPlayer("Hypixel Fast Fall disabled in " + totalTicks + " ticks!");
+            int totalTicks = mc.thePlayer.ticksExisted - timeTicks;
+            sendMessageToPlayer("Hypixel Fast Fall disabled in " + totalTicks + " ticks!");
+            System.out.println("[DEBUG] Disabler ended after " + totalTicks + " ticks.");
 
-                // Restore motion when disabler finishes
-                mc.thePlayer.motionX = 0;
-                mc.thePlayer.motionY = 0;
-                mc.thePlayer.motionZ = 0;
-                System.out.println("Motion restored after disabling");
-            } else {
-                // Maintain freeze during disabling
-                System.out.println("Maintaining freeze during disabling");
-                mc.thePlayer.motionX = 0;
-                mc.thePlayer.motionY = 0;
-                mc.thePlayer.motionZ = 0;
-            }
+            // Player regains control
+            mc.thePlayer.motionX = 0.0;
+            mc.thePlayer.motionY = -0.0784; // Allow natural gravity to resume
+            mc.thePlayer.motionZ = 0.0;
         }
     }
+}
+    
+        
 
     @Override
     public void onDisable() {
