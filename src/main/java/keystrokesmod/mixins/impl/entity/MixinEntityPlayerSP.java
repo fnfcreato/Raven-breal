@@ -108,15 +108,17 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         return this.offGroundTicks;
     }
     
-@Overwrite
+    @Overwrite
     public void onUpdate() {
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
             RotationUtils.prevRenderPitch = RotationUtils.renderPitch;
             RotationUtils.prevRenderYaw = RotationUtils.renderYaw;
 
+            // Trigger PreUpdateEvent
             net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
             super.onUpdate();
 
+            // Update offGroundTicks
             if (this.onGround) {
                 this.offGroundTicks = 0;
             } else {
@@ -126,6 +128,7 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
             net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
         }
     }
+    
 
     @Overwrite
     public void onUpdateWalkingPlayer() {
@@ -141,18 +144,6 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         );
 
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(preMotionEvent);
-
-        if (this.isCurrentViewEntity()) {
-            this.posX = preMotionEvent.getPosX();
-            this.posY = preMotionEvent.getPosY();
-            this.posZ = preMotionEvent.getPosZ();
-            this.rotationYaw = preMotionEvent.getYaw();
-            this.rotationPitch = preMotionEvent.getPitch();
-        }
-
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostMotionEvent());
-    }
-}
 
         boolean flag = preMotionEvent.isSprinting();
         if (flag != this.serverSprintState) {
