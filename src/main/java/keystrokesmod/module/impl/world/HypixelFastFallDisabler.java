@@ -29,26 +29,16 @@ public class HypixelFastFallDisabler extends Module {
         }
 
         if (disabling) {
-            int offGroundTicks = ((IOffGroundTicks) mc.thePlayer).getOffGroundTicks();
-
-            if (offGroundTicks >= 10) {
-                // Freeze player
-                mc.thePlayer.motionX = 0.0;
-                mc.thePlayer.motionY = 0.0;
-                mc.thePlayer.motionZ = 0.0;
-
-                if (offGroundTicks % 2 == 0) {
-                    event.setPosX(event.getPosX() + 0.095); // Add slight offset
-                }
-
-                System.out.println("[DEBUG] Freezing player, offGroundTicks: " + offGroundTicks);
-            } else {
-                // Exit disabling state when offGroundTicks are below threshold
-                disabling = false;
-                System.out.println("[DEBUG] Disabling logic cleared");
-            }
-        }
+    if (offGroundTicks >= 10) {
+        // Freeze player
+        mc.thePlayer.motionX = 0.0;
+        mc.thePlayer.motionY = 0.0;
+        mc.thePlayer.motionZ = 0.0;
+    } else {
+        disabling = false; // Properly exit disabling state
+        mc.thePlayer.motionY = -0.0784; // Reset gravity
     }
+        }
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
