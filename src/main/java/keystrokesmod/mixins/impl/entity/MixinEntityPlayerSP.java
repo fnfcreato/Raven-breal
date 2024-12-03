@@ -110,29 +110,33 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
     }
 
     @Overwrite
-    public void onUpdate() {
-        System.out.println("onUpdate called"); // Debug entry point
+public void onUpdate() {
+    if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
+        RotationUtils.prevRenderPitch = RotationUtils.renderPitch;
+        RotationUtils.prevRenderYaw = RotationUtils.renderYaw;
 
-        if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
-            RotationUtils.prevRenderPitch = RotationUtils.renderPitch;
-            RotationUtils.prevRenderYaw = RotationUtils.renderYaw;
+        // Trigger PreUpdateEvent
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
+        super.onUpdate();
 
-            // Trigger PreUpdateEvent
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
-            super.onUpdate();
-
-            // Update offGroundTicks
-            if (this.onGround) {
-                System.out.println("Player is on the ground"); // Debug
-                this.offGroundTicks = 0;
-            } else {
-                this.offGroundTicks++;
-                System.out.println("Player is off the ground, offGroundTicks: " + offGroundTicks); // Debug
+        // Update offGroundTicks
+        if (this.onGround) {
+            this.offGroundTicks = 0;
+            // Log only once when player lands
+            if (this.offGroundTicks == 0) {
+                System.out.println("[DEBUG] Player is on the ground");
             }
-
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
+        } else {
+            this.offGroundTicks++;
+            // Log only once when player leaves ground
+            if (this.offGroundTicks == 1) {
+                System.out.println("[DEBUG] Player is off the ground");
+            }
         }
+
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
     }
+}
 
     @Overwrite
     public void onUpdateWalkingPlayer() {
