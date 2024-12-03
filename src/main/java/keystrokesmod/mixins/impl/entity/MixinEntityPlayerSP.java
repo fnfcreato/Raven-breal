@@ -105,11 +105,14 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
 
     @Override
     public int getOffGroundTicks() {
+        System.out.println("getOffGroundTicks called: " + offGroundTicks); // Debug
         return this.offGroundTicks;
     }
-    
+
     @Overwrite
     public void onUpdate() {
+        System.out.println("onUpdate called"); // Debug entry point
+
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
             RotationUtils.prevRenderPitch = RotationUtils.renderPitch;
             RotationUtils.prevRenderYaw = RotationUtils.renderYaw;
@@ -120,18 +123,21 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
 
             // Update offGroundTicks
             if (this.onGround) {
+                System.out.println("Player is on the ground"); // Debug
                 this.offGroundTicks = 0;
             } else {
                 this.offGroundTicks++;
+                System.out.println("Player is off the ground, offGroundTicks: " + offGroundTicks); // Debug
             }
 
             net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
         }
     }
-    
 
     @Overwrite
     public void onUpdateWalkingPlayer() {
+        System.out.println("onUpdateWalkingPlayer called"); // Debug entry point
+
         PreMotionEvent preMotionEvent = new PreMotionEvent(
                 this.posX,
                 this.getEntityBoundingBox().minY,
@@ -144,26 +150,29 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         );
 
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(preMotionEvent);
+        System.out.println("PreMotionEvent: " + preMotionEvent); // Debug
 
         boolean flag = preMotionEvent.isSprinting();
         if (flag != this.serverSprintState) {
             if (flag) {
+                System.out.println("Starting sprinting"); // Debug
                 this.sendQueue.addToSendQueue(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.START_SPRINTING));
             } else {
+                System.out.println("Stopping sprinting"); // Debug
                 this.sendQueue.addToSendQueue(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.STOP_SPRINTING));
             }
-
             this.serverSprintState = flag;
         }
 
         boolean flag1 = preMotionEvent.isSneaking();
         if (flag1 != this.serverSneakState) {
             if (flag1) {
+                System.out.println("Starting sneaking"); // Debug
                 this.sendQueue.addToSendQueue(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.START_SNEAKING));
             } else {
+                System.out.println("Stopping sneaking"); // Debug
                 this.sendQueue.addToSendQueue(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.STOP_SNEAKING));
             }
-
             this.serverSneakState = flag1;
         }
 
@@ -175,12 +184,16 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
             boolean rotationChanged = preMotionEvent.getYaw() != this.rotationYaw || preMotionEvent.getPitch() != this.rotationPitch;
 
             if (positionChanged && rotationChanged) {
+                System.out.println("Sending C06PacketPlayerPosLook"); // Debug
                 this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(preMotionEvent.getPosX(), preMotionEvent.getPosY(), preMotionEvent.getPosZ(), preMotionEvent.getYaw(), preMotionEvent.getPitch(), preMotionEvent.isOnGround()));
             } else if (positionChanged) {
+                System.out.println("Sending C04PacketPlayerPosition"); // Debug
                 this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(preMotionEvent.getPosX(), preMotionEvent.getPosY(), preMotionEvent.getPosZ(), preMotionEvent.isOnGround()));
             } else if (rotationChanged) {
+                System.out.println("Sending C05PacketPlayerLook"); // Debug
                 this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(preMotionEvent.getYaw(), preMotionEvent.getPitch(), preMotionEvent.isOnGround()));
             } else {
+                System.out.println("Sending C03PacketPlayer"); // Debug
                 this.sendQueue.addToSendQueue(new C03PacketPlayer(preMotionEvent.isOnGround()));
             }
 
@@ -193,6 +206,7 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         }
 
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostMotionEvent());
+        System.out.println("PostMotionEvent triggered"); // Debug
     }
 
     @Overwrite
@@ -201,6 +215,7 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
             --this.sprintingTicksLeft;
             if (this.sprintingTicksLeft == 0) {
                 this.setSprinting(false);
+                System.out.println("Sprinting ended"); // Debug
             }
         }
 
