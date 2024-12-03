@@ -119,25 +119,22 @@ public void onUpdate() {
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
         super.onUpdate();
 
-        // Track ground state and log only when it changes
-        boolean isCurrentlyOnGround = this.onGround;
-        if (isCurrentlyOnGround && this.offGroundTicks > 0) {
-            System.out.println("[DEBUG] Player is on the ground");
-        } else if (!isCurrentlyOnGround && this.offGroundTicks == 0) {
-            System.out.println("[DEBUG] Player is off the ground");
-        }
-
-        // Update offGroundTicks
-        if (isCurrentlyOnGround) {
-            this.offGroundTicks = 0;
+        // Update offGroundTicks with detailed debug logging
+        if (this.onGround) {
+            if (this.offGroundTicks > 0) {
+                System.out.println("[DEBUG] Player landed, resetting offGroundTicks");
+            }
+            this.offGroundTicks = 0; // Reset when on the ground
         } else {
-            this.offGroundTicks++;
+            this.offGroundTicks++; // Increment when in the air
+            System.out.println("[DEBUG] Player is in the air, offGroundTicks: " + this.offGroundTicks);
         }
 
+        // Trigger PostUpdateEvent
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
     }
 }
-
+    
     @Overwrite
     public void onUpdateWalkingPlayer() {
         System.out.println("onUpdateWalkingPlayer called"); // Debug entry point
@@ -187,18 +184,12 @@ public void onUpdate() {
             boolean positionChanged = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ > 9.0E-4 || this.positionUpdateTicks >= 20;
             boolean rotationChanged = preMotionEvent.getYaw() != this.rotationYaw || preMotionEvent.getPitch() != this.rotationPitch;
 
-            if (positionChanged && rotationChanged) {
-                System.out.println("Sending C06PacketPlayerPosLook"); // Debug
-                this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(preMotionEvent.getPosX(), preMotionEvent.getPosY(), preMotionEvent.getPosZ(), preMotionEvent.getYaw(), preMotionEvent.getPitch(), preMotionEvent.isOnGround()));
-            } else if (positionChanged) {
-                System.out.println("Sending C04PacketPlayerPosition"); // Debug
-                this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(preMotionEvent.getPosX(), preMotionEvent.getPosY(), preMotionEvent.getPosZ(), preMotionEvent.isOnGround()));
-            } else if (rotationChanged) {
-                System.out.println("Sending C05PacketPlayerLook"); // Debug
-                this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(preMotionEvent.getYaw(), preMotionEvent.getPitch(), preMotionEvent.isOnGround()));
-            } else {
-                System.out.println("Sending C03PacketPlayer"); // Debug
-                this.sendQueue.addToSendQueue(new C03PacketPlayer(preMotionEvent.isOnGround()));
+            if (positionChanged || rotationChanged) {
+    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(
+        preMotionEvent.getPosX(), preMotionEvent.getPosY(), preMotionEvent.getPosZ(),
+        preMotionEvent.getYaw(), preMotionEvent.getPitch(), preMotionEvent.isOnGround()));
+} else {
+    this.sendQueue.addToSendQueue(new C03PacketPlayer(preMotionEvent.isOnGround()));
             }
 
             this.posX = preMotionEvent.getPosX();
