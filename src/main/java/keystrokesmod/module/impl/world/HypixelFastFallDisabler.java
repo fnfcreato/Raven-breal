@@ -21,7 +21,7 @@ public class HypixelFastFallDisabler extends Module {
         this.registerSetting(disableMessage);
     }
 
-    @SubscribeEvent
+     @SubscribeEvent
     public void onPreMotion(PreMotionEvent event) {
         if (isFinished || !(mc.thePlayer instanceof IOffGroundTicks)) return;
 
@@ -29,15 +29,18 @@ public class HypixelFastFallDisabler extends Module {
 
         if (offGroundTicks >= 10) {
             if (offGroundTicks % 2 == 0) {
-                event.setPosX(event.getPosX() + 0.095); // Adjust player's X position
+                event.setPosX(event.getPosX() + 0.095);
             }
-            // Freeze motion during disabler
             mc.thePlayer.motionX = 0;
             mc.thePlayer.motionY = 0;
             mc.thePlayer.motionZ = 0;
+        } else {
+            // Restore movement when the disabler is finished
+            mc.thePlayer.motionX *= 0.98;
+            mc.thePlayer.motionZ *= 0.98;
         }
     }
-
+    
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
         if (event.getPacket() instanceof S08PacketPlayerPosLook && !isFinished) {
