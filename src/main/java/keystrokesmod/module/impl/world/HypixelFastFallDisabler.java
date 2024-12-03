@@ -74,19 +74,17 @@ public class HypixelFastFallDisabler extends Module {
     }
 
     @Override
-    public void onDisable() {
-        // Restore player motion when disabled
-        isFinished = false;
-        flagged = 0;
-        offGroundTicks = 0;
+public void onDisable() {
+    isFinished = false;
+    flagged = 0;
+    offGroundTicks = 0;
 
-        // Allow movement again
-        mc.thePlayer.motionX = 0;
-        mc.thePlayer.motionY = 0;
-        mc.thePlayer.motionZ = 0;
+    // Restore player motion
+    mc.thePlayer.motionX = 0;
+    mc.thePlayer.motionY = 0;
+    mc.thePlayer.motionZ = 0;
 
-        if (disableMessage.isToggled()) {
-            mc.thePlayer.addChatMessage(new ChatComponentText("Hypixel Fast Fall disabled."));
-        }
+    if (disableMessage.isToggled()) {
+        mc.thePlayer.addChatMessage(new ChatComponentText("Hypixel Fast Fall disabled."));
     }
 }
