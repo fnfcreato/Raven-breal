@@ -145,7 +145,8 @@ public void onUpdate() {
             }
         } else {
             if (offGroundTicks == 5 && mc.thePlayer.hurtTime < 5 && 
-                !ModuleManager.getModule("Disabler").isEnabled()) {
+                Module disabler = ModuleManager.getModule("Disabler");
+    if (disabler != null && !disabler.isEnabled()) {
                 mc.thePlayer.motionY = -0.1523351824467155;
             }
             mc.thePlayer.motionX *= 1.0005;
