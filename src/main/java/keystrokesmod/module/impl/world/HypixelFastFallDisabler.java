@@ -22,21 +22,21 @@ public class HypixelFastFallDisabler extends Module {
     }
 
     @SubscribeEvent
-    public void onMotion(MotionEvent event) {
+    public void onPreMotion(PreMotionEvent event) {
         if (Utils.nullCheck()) return;
 
         if (mc.thePlayer.onGround) {
-            // Reset state when player lands
+            // Reset state when the player is on the ground
             offGroundTicks = 0;
             jump = false;
             disabling = false;
         } else {
-            // Increment off-ground ticks
+            // Increment off-ground ticks when not on the ground
             offGroundTicks++;
         }
 
         if (!jump && mc.thePlayer.onGround) {
-            // Simulate a jump
+            // Simulate a jump when on the ground
             mc.thePlayer.jump();
             jump = true;
             disabling = true;
@@ -45,27 +45,27 @@ public class HypixelFastFallDisabler extends Module {
         }
 
         if (disabling && offGroundTicks >= 10) {
-            // Freeze player movement
+            // Freeze motion to bypass Hypixel's jump checks
             mc.thePlayer.motionX = 0.0;
-            mc.thePlayer.motionY = 0.0; // Disable upward/downward motion
+            mc.thePlayer.motionY = -0.01; // Simulates gentle falling
             mc.thePlayer.motionZ = 0.0;
 
             if (offGroundTicks % 2 == 0) {
                 // Adjust position slightly to mimic natural movement
-                event.setX(event.getX() + 0.095);
-                event.setZ(event.getZ() + 0.095);
+                event.setPosX(event.getPosX() + 0.095);
+                event.setPosZ(event.getPosZ() + 0.095);
             }
             System.out.println("[DEBUG] Freezing player motion. OffGroundTicks: " + offGroundTicks);
         }
     }
 
     @SubscribeEvent
-    public void onPacket(PacketEvent event) {
+    public void onReceivePacket(ReceivePacketEvent event) {
         if (event.getPacket() instanceof S08PacketPlayerPosLook) {
             testTicks++;
 
             if (testTicks >= 30) {
-                // Disable the disabler after 30 packets
+                // Disable the disabler after 30 flagged packets
                 disabling = false;
                 testTicks = 0;
                 disabled = true;
@@ -74,7 +74,7 @@ public class HypixelFastFallDisabler extends Module {
                 sendMessageToPlayer("Jump check disabled in " + ticksTaken + " ticks!");
                 System.out.println("[DEBUG] Jump check disabled in " + ticksTaken + " ticks.");
             } else if (disabling) {
-                // Freeze player motion when flagged by Hypixel
+                // Freeze motion while flagged
                 mc.thePlayer.motionX = 0.0;
                 mc.thePlayer.motionY = 0.0;
                 mc.thePlayer.motionZ = 0.0;
@@ -105,7 +105,7 @@ public class HypixelFastFallDisabler extends Module {
         testTicks = 0;
         timeTicks = 0;
 
-        // Reset motion
+        // Reset player motion
         if (mc.thePlayer != null) {
             mc.thePlayer.motionX = 0.0;
             mc.thePlayer.motionY = -0.0784; // Default gravity
