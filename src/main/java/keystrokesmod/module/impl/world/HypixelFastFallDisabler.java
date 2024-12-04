@@ -60,7 +60,7 @@ public class HypixelFastFallDisabler extends Module {
     }
 
     @SubscribeEvent
-    public void onReceivePacket(ReceivePacketEvent event) {
+    public void onSendPacket(SendPacketEvent event) {
         if (event.getPacket() instanceof S08PacketPlayerPosLook) {
             testTicks++;
 
