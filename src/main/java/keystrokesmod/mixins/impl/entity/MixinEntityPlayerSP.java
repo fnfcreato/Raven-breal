@@ -103,35 +103,29 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         super(worldIn, playerProfile);
     }
 
+
+    @Overwrite
+    public void onUpdate() {
+        if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
+            super.onUpdate();
+
+            if (this.onGround) {
+                this.offGroundTicks = 0; // Reset ticks when on the ground
+            } else {
+                this.offGroundTicks++;
+                if (this.offGroundTicks > 100) { // Safety condition to avoid infinite freeze
+                    this.offGroundTicks = 0;
+                }
+            }
+
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
+        }
+    }
+
     @Override
     public int getOffGroundTicks() {
-        System.out.println("getOffGroundTicks called: " + offGroundTicks); // Debug
         return this.offGroundTicks;
-    }
-    
-@Overwrite
-public void onUpdate() {
-    if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
-        RotationUtils.prevRenderPitch = RotationUtils.renderPitch;
-        RotationUtils.prevRenderYaw = RotationUtils.renderYaw;
-
-        // Trigger PreUpdateEvent
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
-        super.onUpdate();
-
-        // Update offGroundTicks with detailed debug logging
-        if (this.onGround) {
-            if (this.offGroundTicks > 0) {
-                System.out.println("[DEBUG] Player landed, resetting offGroundTicks");
-            }
-            this.offGroundTicks = 0; // Reset when on the ground
-        } else {
-            this.offGroundTicks++; // Increment when in the air
-            System.out.println("[DEBUG] Player is in the air, offGroundTicks: " + this.offGroundTicks);
-        }
-
-        // Trigger PostUpdateEvent
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
     }
 }
     
