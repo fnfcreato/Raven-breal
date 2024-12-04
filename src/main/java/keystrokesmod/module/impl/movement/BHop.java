@@ -136,16 +136,16 @@ public void onUpdate() {
 
     if (mc.thePlayer.onGround) {
         if (Utils.isMoving()) {
-            Utils.setHorizontalSpeed(mc.thePlayer, Utils.getHorizontalSpeed(mc.thePlayer) + 0.23f);
+            Utils.setHorizontalSpeed(mc.thePlayer, Utils.getHorizontalSpeed(mc.thePlayer) + 0.22f);
             mc.thePlayer.motionY = Utils.getJumpHeight();
-            mc.thePlayer.motionX *= 0.95;
-            mc.thePlayer.motionZ *= 0.95;
-            if (Utils.getHorizontalSpeed(mc.thePlayer) < 0.46f) {
-                Utils.setHorizontalSpeed(mc.thePlayer, 0.46f);
+            mc.thePlayer.motionX *= 0.94;
+            mc.thePlayer.motionZ *= 0.94;
+            if (Utils.getHorizontalSpeed(mc.thePlayer) < 0.45f) {
+                Utils.setHorizontalSpeed(mc.thePlayer, 0.45f);
             }
             if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                 float amplifier = mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier();
-                Utils.setHorizontalSpeed(mc.thePlayer, 0.47f + 0.024f * (amplifier + 1));
+                Utils.setHorizontalSpeed(mc.thePlayer, 0.46f + 0.023f * (amplifier + 1));
             }
         }
     } else {
@@ -153,11 +153,11 @@ public void onUpdate() {
         Module disabler = ModuleManager.getModule("Disabler");
 
         if (offGroundTicks == 5 && mc.thePlayer.hurtTime < 5 && disabler != null && !disabler.isEnabled()) {
-            mc.thePlayer.motionY = -0.1523351824467155;
+            mc.thePlayer.motionY = -0.1522351824467155;
         }
 
-        mc.thePlayer.motionX *= 1.0005;
-        mc.thePlayer.motionZ *= 1.0005;
+        mc.thePlayer.motionX *= 1.0004;
+        mc.thePlayer.motionZ *= 1.0004;
     }
     }
     
