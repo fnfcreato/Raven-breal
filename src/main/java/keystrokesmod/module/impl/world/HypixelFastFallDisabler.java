@@ -20,7 +20,6 @@ public class HypixelFastFallDisabler extends Module {
 
     public HypixelFastFallDisabler() {
         super("Hypixel Fast Fall", Module.category.world, 0);
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
