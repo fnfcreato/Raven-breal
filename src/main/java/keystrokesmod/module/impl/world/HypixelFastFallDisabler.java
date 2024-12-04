@@ -21,6 +21,13 @@ public class HypixelFastFallDisabler extends Module {
 
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent event) {
+        if (mc.thePlayer != null && mc.thePlayer instanceof IOffGroundTicks) {
+        // Cast mc.thePlayer to IOffGroundTicks
+        IOffGroundTicks player = (IOffGroundTicks) mc.thePlayer;
+
+        // Access offGroundTicks using the interface method
+        int offGroundTicks = player.getOffGroundTicks();
+            
         if (!disabling && jump) {
             jump = false;
             disabling = true;
@@ -39,8 +46,8 @@ public class HypixelFastFallDisabler extends Module {
                 mc.thePlayer.motionY = -0.0784; // Reset gravity
             }
         }
+        }
     }
-
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
         if (event.getPacket() instanceof S08PacketPlayerPosLook) {
