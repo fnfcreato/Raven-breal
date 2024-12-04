@@ -6,7 +6,6 @@ import keystrokesmod.module.Module;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.util.ChatComponentText;
-import keystrokesmod.mixins.interfaces.IOffGroundTicks;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import keystrokesmod.utility.Utils;
 
@@ -15,6 +14,7 @@ public class HypixelFastFallDisabler extends Module {
     private boolean disabling = false;
     private int testTicks = 0;
     private int timeTicks = 0;
+    private int offGroundTicks = 0;
 
     public HypixelFastFallDisabler() {
         super("Hypixel Fast Fall", Module.category.world, 0);
@@ -22,10 +22,13 @@ public class HypixelFastFallDisabler extends Module {
 
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent event) {
-        if (mc.thePlayer != null && mc.thePlayer instanceof IOffGroundTicks) {
-            IOffGroundTicks player = (IOffGroundTicks) mc.thePlayer;
-            int offGroundTicks = player.getOffGroundTicks();
+        if (Utils.nullCheck()) return;
 
+        if (mc.thePlayer.onGround) {
+            offGroundTicks = 0;
+        } else {
+            offGroundTicks++;
+        }
             if (!disabling && jump) {
                 jump = false;
                 disabling = true;
@@ -60,7 +63,7 @@ public class HypixelFastFallDisabler extends Module {
 
                 // Restore normal motion
                 mc.thePlayer.motionX = 0.0;
-                mc.thePlayer.motionY = -0.0784; // Natural gravity
+                mc.thePlayer.motionY = 0.0
                 mc.thePlayer.motionZ = 0.0;
             }
         }
@@ -72,9 +75,10 @@ public class HypixelFastFallDisabler extends Module {
         disabling = false;
         testTicks = 0;
         timeTicks = 0;
+        offGroundTicks = 0;
 
         mc.thePlayer.motionX = 0.0;
-        mc.thePlayer.motionY = -0.0784; // Natural gravity
+        mc.thePlayer.motionY = 0.0; // Natural gravity
         mc.thePlayer.motionZ = 0.0;
 
         sendMessageToPlayer("Hypixel Fast Fall disabled.");
@@ -86,7 +90,8 @@ public class HypixelFastFallDisabler extends Module {
         disabling = false;
         testTicks = 0;
         timeTicks = 0;
-
+        offGroundTicks = 0;
+        
         sendMessageToPlayer("Hypixel Fast Fall enabled.");
     }
 
