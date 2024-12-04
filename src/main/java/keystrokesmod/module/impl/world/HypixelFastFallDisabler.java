@@ -8,7 +8,7 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.util.ChatComponentText;
 import keystrokesmod.mixins.interfaces.IOffGroundTicks;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import keystrokesmod.utility.utils
+import keystrokesmod.utility.Utils;
 public class HypixelFastFallDisabler extends Module {
     private boolean jump = true;
     private boolean disabling = false;
