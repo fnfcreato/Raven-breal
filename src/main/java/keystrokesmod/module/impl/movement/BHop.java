@@ -39,7 +39,6 @@ public class BHop extends Module {
     public String getInfo() {
         return modes[(int) mode.getInput()];
     }
-
     @Override
     public void onUpdate() {
         if (((mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) && liquidDisable.isToggled()) || 
@@ -137,10 +136,9 @@ public class BHop extends Module {
                 }
             }
         } else {
-                if (offGroundTicks == 5 && mc.thePlayer.hurtTime < 5 && 
-                    !ModuleManager.getModule("Disabler").isEnabled()) {
-                    mc.thePlayer.motionY = -0.1523351824467155;
-                }
+            if (offGroundTicks == 5 && mc.thePlayer.hurtTime < 5 && 
+                !ModuleManager.getModule("Disabler").isEnabled()) {
+                mc.thePlayer.motionY = -0.1523351824467155;
             }
             mc.thePlayer.motionX *= 1.0005;
             mc.thePlayer.motionZ *= 1.0005;
@@ -164,3 +162,4 @@ public class BHop extends Module {
         }
     }
 }
+
