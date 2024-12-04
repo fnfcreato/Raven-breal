@@ -22,7 +22,7 @@ public class Tower extends Module {
     private ButtonSetting sprintJumpForward;
 
     private String[] modes = new String[]{"Vanilla", "Low", "Hypixel"};
-    private int offGroundTicks;
+    private int offGroundTicks = 0;
     private boolean isTowering;
 
     public Tower() {
@@ -41,11 +41,11 @@ public class Tower extends Module {
     
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent e) {
-        if (mc.thePlayer.onGround) {
-            offGroundTicks = 0;
-        } else {
-            offGroundTicks++;
-        }
+         if (mc.thePlayer.onGround) {
+        offGroundTicks = 0;
+    } else {
+        offGroundTicks++;
+         }
 
         if (canTower()) {
             switch ((int) mode.getInput()) {
