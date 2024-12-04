@@ -126,32 +126,35 @@ public void onUpdate() {
     }
 
     private void handleFastFallMode() {
-        if (mc.thePlayer == null || mc.theWorld == null) {
+    if (mc.thePlayer == null || mc.theWorld == null) {
         return; // Prevent null access
-        }
-        if (mc.thePlayer.onGround) {
-            if (Utils.isMoving()) {
-                Utils.setHorizontalSpeed(mc.thePlayer, Utils.getHorizontalSpeed(mc.thePlayer) + 0.23f);
-                mc.thePlayer.motionY = Utils.getJumpHeight();
-                mc.thePlayer.motionX *= 0.95;
-                mc.thePlayer.motionZ *= 0.95;
-                if (Utils.getHorizontalSpeed(mc.thePlayer) < 0.46f) {
-                    Utils.setHorizontalSpeed(mc.thePlayer, 0.46f);
-                }
-                if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                    float amplifier = mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier();
-                    Utils.setHorizontalSpeed(mc.thePlayer, 0.47f + 0.024f * (amplifier + 1));
-                }
+    }
+
+    if (mc.thePlayer.onGround) {
+        if (Utils.isMoving()) {
+            Utils.setHorizontalSpeed(mc.thePlayer, Utils.getHorizontalSpeed(mc.thePlayer) + 0.23f);
+            mc.thePlayer.motionY = Utils.getJumpHeight();
+            mc.thePlayer.motionX *= 0.95;
+            mc.thePlayer.motionZ *= 0.95;
+            if (Utils.getHorizontalSpeed(mc.thePlayer) < 0.46f) {
+                Utils.setHorizontalSpeed(mc.thePlayer, 0.46f);
             }
-        } else {
-            if (offGroundTicks == 5 && mc.thePlayer.hurtTime < 5 && 
-                Module disabler = ModuleManager.getModule("Disabler");
-    if (disabler != null && !disabler.isEnabled()) {
-                mc.thePlayer.motionY = -0.1523351824467155;
+            if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+                float amplifier = mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier();
+                Utils.setHorizontalSpeed(mc.thePlayer, 0.47f + 0.024f * (amplifier + 1));
             }
-            mc.thePlayer.motionX *= 1.0005;
-            mc.thePlayer.motionZ *= 1.0005;
         }
+    } else {
+        // Declare and retrieve the disabler module before the condition
+        Module disabler = ModuleManager.getModule("Disabler");
+
+        if (offGroundTicks == 5 && mc.thePlayer.hurtTime < 5 && disabler != null && !disabler.isEnabled()) {
+            mc.thePlayer.motionY = -0.1523351824467155;
+        }
+
+        mc.thePlayer.motionX *= 1.0005;
+        mc.thePlayer.motionZ *= 1.0005;
+    }
     }
     
     @Override
