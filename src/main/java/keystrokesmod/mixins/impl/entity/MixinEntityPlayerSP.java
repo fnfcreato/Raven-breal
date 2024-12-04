@@ -32,8 +32,7 @@ import keystrokesmod.mixins.interfaces.IOffGroundTicks;
 
 
 @Mixin(EntityPlayerSP.class)
-public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implements IOffGroundTicks {
-    private int offGroundTicks; 
+public abstract class MixinEntityPlayerSP extends AbstractClientPlayer {
     
     @Shadow
     public int sprintingTicksLeft;
@@ -103,26 +102,11 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         super(worldIn, playerProfile);
     }
 
-    @Override
-    public int getOffGroundTicks() {
-        return this.offGroundTicks;
-    }
-
     @Overwrite
     public void onUpdate() {
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
             net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PreUpdateEvent());
             super.onUpdate();
-
-            if (this.onGround) {
-                this.offGroundTicks = 0; // Reset ticks when on the ground
-            } else {
-                this.offGroundTicks++;
-                if (this.offGroundTicks > 100) { // Safety condition to avoid infinite freeze
-                    this.offGroundTicks = 0;
-                }
-            }
-
             net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
         }
     }
