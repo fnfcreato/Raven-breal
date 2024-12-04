@@ -8,7 +8,7 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.util.ChatComponentText;
 import keystrokesmod.mixins.interfaces.IOffGroundTicks;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
+import keystrokesmod.utility.utils
 public class HypixelFastFallDisabler extends Module {
     private boolean jump = true;
     private boolean disabling = false;
@@ -29,16 +29,17 @@ public class HypixelFastFallDisabler extends Module {
         }
 
         if (disabling) {
-    if (offGroundTicks >= 10) {
-        // Freeze player
-        mc.thePlayer.motionX = 0.0;
-        mc.thePlayer.motionY = 0.0;
-        mc.thePlayer.motionZ = 0.0;
-    } else {
-        disabling = false; // Properly exit disabling state
-        mc.thePlayer.motionY = -0.0784; // Reset gravity
-    }
+            if (offGroundTicks >= 10) {
+                // Freeze player
+                mc.thePlayer.motionX = 0.0;
+                mc.thePlayer.motionY = 0.0;
+                mc.thePlayer.motionZ = 0.0;
+            } else {
+                disabling = false; // Properly exit disabling state
+                mc.thePlayer.motionY = -0.0784; // Reset gravity
+            }
         }
+    }
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
