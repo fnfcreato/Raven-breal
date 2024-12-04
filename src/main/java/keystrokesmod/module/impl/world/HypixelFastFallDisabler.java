@@ -10,11 +10,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import keystrokesmod.utility.Utils;
 
 public class HypixelFastFallDisabler extends Module {
-    private boolean jump = true;
-    private boolean disabling = false;
-    private int testTicks = 0;
-    private int timeTicks = 0;
+    private boolean isDisabling = false;
     private int offGroundTicks = 0;
+    private int flaggedTicks = 0;
 
     public HypixelFastFallDisabler() {
         super("Hypixel Fast Fall", Module.category.world, 0);
@@ -30,21 +28,16 @@ public class HypixelFastFallDisabler extends Module {
             offGroundTicks++;
         }
 
-        if (!disabling && jump) {
-            jump = false;
-            disabling = true;
-            timeTicks = mc.thePlayer.ticksExisted;
-            System.out.println("[DEBUG] Disabler started, ticks: " + timeTicks);
-        }
-
-        if (disabling) {
-            if (offGroundTicks >= 10) {
-                // Apply gentle downward motion
+        if (isDisabling) {
+            if (offGroundTicks > 10) {
+                // Forcefully freeze player movement to prevent detection
                 mc.thePlayer.motionX = 0.0;
-                mc.thePlayer.motionY = -0.01; // Gentle gravity effect
+                mc.thePlayer.motionY = -0.1; // Simulates fall, slightly stronger than default gravity
                 mc.thePlayer.motionZ = 0.0;
-            } else if (offGroundTicks == 0) {
-                disabling = false; // Reset disabling when player lands
+
+                // Adjust position slightly to mimic natural movement
+                event.setPosX(event.getPosX() + Utils.randomizeDouble(-0.01, 0.01));
+                event.setPosZ(event.getPosZ() + Utils.randomizeDouble(-0.01, 0.01));
             }
         }
     }
@@ -52,47 +45,41 @@ public class HypixelFastFallDisabler extends Module {
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
         if (event.getPacket() instanceof S08PacketPlayerPosLook) {
-            testTicks++;
-            if (testTicks >= 30) { // Timeout condition
-                disabling = false;
-                testTicks = 0;
+            flaggedTicks++;
+            if (flaggedTicks > 5) {
+                // Reset the disabling process after excessive flagging
+                isDisabling = false;
+                flaggedTicks = 0;
 
-                int totalTicks = mc.thePlayer.ticksExisted - timeTicks;
-                sendMessageToPlayer("Hypixel Fast Fall disabled in " + totalTicks + " ticks!");
-                System.out.println("[DEBUG] Disabler ended after " + totalTicks + " ticks.");
-
-                // Restore normal motion
-                mc.thePlayer.motionX = 0.0;
-                mc.thePlayer.motionY = 0.0; // Natural gravity
-                mc.thePlayer.motionZ = 0.0;
+                sendMessageToPlayer("Fast Fall detected by Hypixel, resetting...");
+                System.out.println("[DEBUG] Resetting Fast Fall disabler.");
             }
         }
     }
 
     @Override
-    public void onDisable() {
-        jump = true;
-        disabling = false;
-        testTicks = 0;
-        timeTicks = 0;
+    public void onEnable() {
+        isDisabling = true;
         offGroundTicks = 0;
+        flaggedTicks = 0;
 
-        mc.thePlayer.motionX = 0.0;
-        mc.thePlayer.motionY = 0.0; // Natural gravity
-        mc.thePlayer.motionZ = 0.0;
-
-        sendMessageToPlayer("Hypixel Fast Fall disabled.");
+        sendMessageToPlayer("Hypixel Fast Fall enabled.");
     }
 
     @Override
-    public void onEnable() {
-        jump = true;
-        disabling = false;
-        testTicks = 0;
-        timeTicks = 0;
+    public void onDisable() {
+        isDisabling = false;
         offGroundTicks = 0;
+        flaggedTicks = 0;
 
-        sendMessageToPlayer("Hypixel Fast Fall enabled.");
+        // Restore normal motion
+        if (mc.thePlayer != null) {
+            mc.thePlayer.motionX = 0.0;
+            mc.thePlayer.motionY = -0.0784; // Default gravity
+            mc.thePlayer.motionZ = 0.0;
+        }
+
+        sendMessageToPlayer("Hypixel Fast Fall disabled.");
     }
 
     private void sendMessageToPlayer(String message) {
