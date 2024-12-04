@@ -103,6 +103,10 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         super(worldIn, playerProfile);
     }
 
+    @Override
+    public int getOffGroundTicks() {
+        return this.offGroundTicks;
+    }
 
     @Overwrite
     public void onUpdate() {
@@ -123,25 +127,19 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         }
     }
 
-    @Override
-    public int getOffGroundTicks() {
-        return this.offGroundTicks;
-    }
-}
-    
     @Overwrite
     public void onUpdateWalkingPlayer() {
         System.out.println("onUpdateWalkingPlayer called"); // Debug entry point
 
         PreMotionEvent preMotionEvent = new PreMotionEvent(
-                this.posX,
-                this.getEntityBoundingBox().minY,
-                this.posZ,
-                this.rotationYaw,
-                this.rotationPitch,
-                this.onGround,
-                this.isSprinting(),
-                this.isSneaking()
+            this.posX,
+            this.getEntityBoundingBox().minY,
+            this.posZ,
+            this.rotationYaw,
+            this.rotationPitch,
+            this.onGround,
+            this.isSprinting(),
+            this.isSneaking()
         );
 
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(preMotionEvent);
@@ -179,11 +177,12 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
             boolean rotationChanged = preMotionEvent.getYaw() != this.rotationYaw || preMotionEvent.getPitch() != this.rotationPitch;
 
             if (positionChanged || rotationChanged) {
-    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(
-        preMotionEvent.getPosX(), preMotionEvent.getPosY(), preMotionEvent.getPosZ(),
-        preMotionEvent.getYaw(), preMotionEvent.getPitch(), preMotionEvent.isOnGround()));
-} else {
-    this.sendQueue.addToSendQueue(new C03PacketPlayer(preMotionEvent.isOnGround()));
+                this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(
+                    preMotionEvent.getPosX(), preMotionEvent.getPosY(), preMotionEvent.getPosZ(),
+                    preMotionEvent.getYaw(), preMotionEvent.getPitch(), preMotionEvent.isOnGround()
+                ));
+            } else {
+                this.sendQueue.addToSendQueue(new C03PacketPlayer(preMotionEvent.isOnGround()));
             }
 
             this.posX = preMotionEvent.getPosX();
