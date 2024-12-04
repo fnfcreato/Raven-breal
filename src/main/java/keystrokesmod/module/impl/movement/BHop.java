@@ -1,7 +1,6 @@
 package keystrokesmod.module.impl.movement;
 
 import keystrokesmod.event.JumpEvent;
-import keystrokesmod.mixins.impl.entity.MixinEntityPlayerSP;
 import keystrokesmod.module.Module;
 import keystrokesmod.module.ModuleManager;
 import keystrokesmod.module.impl.client.Settings;
@@ -9,7 +8,6 @@ import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.utility.RotationUtils;
 import keystrokesmod.utility.Utils;
-import keystrokesmod.mixins.interfaces.IOffGroundTicks;
 import net.minecraft.potion.Potion;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
@@ -24,7 +22,8 @@ public class BHop extends Module {
     private ButtonSetting stopMotion;
     private final String[] modes = new String[]{"Strafe", "Ground", "FastFall"}; // Added FastFall
     public boolean hopping;
-
+    private int offGroundTicks = 0;
+    
     public BHop() {
         super("Bhop", Module.category.movement);
         this.registerSetting(mode = new SliderSetting("Mode", 0, modes));
@@ -55,6 +54,12 @@ public class BHop extends Module {
             RotationUtils.inRange(ModuleManager.bedAura.currentBlock, ModuleManager.bedAura.range.getInput())) {
             return;
         }
+        if (mc.thePlayer.onGround) {
+            offGroundTicks = 0;
+        } else {
+            offGroundTicks++;
+        }
+        
         switch ((int) mode.getInput()) {
             case 0: // Strafe Mode
                 handleStrafeMode();
@@ -132,8 +137,6 @@ public class BHop extends Module {
                 }
             }
         } else {
-            if (mc.thePlayer instanceof IOffGroundTicks) {
-                int offGroundTicks = ((IOffGroundTicks) mc.thePlayer).getOffGroundTicks();
                 if (offGroundTicks == 5 && mc.thePlayer.hurtTime < 5 && 
                     !ModuleManager.getModule("Disabler").isEnabled()) {
                     mc.thePlayer.motionY = -0.1523351824467155;
