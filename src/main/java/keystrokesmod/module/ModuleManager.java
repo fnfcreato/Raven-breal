@@ -65,7 +65,6 @@ public class ModuleManager {
     public static Sprint sprint;
     public static Weather weather;
     public static MotionDisabler motiondisabler;
-    public static HypixelFastFallDisabler hypixelfastfalldisabler;
 
     public void register() {
         this.addModule(autoClicker = new AutoClicker());
