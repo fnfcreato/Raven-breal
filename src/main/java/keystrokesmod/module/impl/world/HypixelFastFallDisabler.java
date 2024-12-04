@@ -29,22 +29,22 @@ public class HypixelFastFallDisabler extends Module {
         } else {
             offGroundTicks++;
         }
-            if (!disabling && jump) {
-                jump = false;
-                disabling = true;
-                timeTicks = mc.thePlayer.ticksExisted;
-                System.out.println("[DEBUG] Disabler started, ticks: " + timeTicks);
-            }
 
-            if (disabling) {
-                if (offGroundTicks >= 10) {
-                    // Reduce freezing to temporary
-                    mc.thePlayer.motionX = 0.0;
-                    mc.thePlayer.motionY = -0.01; // Gentle gravity effect
-                    mc.thePlayer.motionZ = 0.0;
-                } else if (offGroundTicks == 0) {
-                    disabling = false; // Reset disabling when player lands
-                }
+        if (!disabling && jump) {
+            jump = false;
+            disabling = true;
+            timeTicks = mc.thePlayer.ticksExisted;
+            System.out.println("[DEBUG] Disabler started, ticks: " + timeTicks);
+        }
+
+        if (disabling) {
+            if (offGroundTicks >= 10) {
+                // Apply gentle downward motion
+                mc.thePlayer.motionX = 0.0;
+                mc.thePlayer.motionY = -0.01; // Gentle gravity effect
+                mc.thePlayer.motionZ = 0.0;
+            } else if (offGroundTicks == 0) {
+                disabling = false; // Reset disabling when player lands
             }
         }
     }
@@ -63,7 +63,7 @@ public class HypixelFastFallDisabler extends Module {
 
                 // Restore normal motion
                 mc.thePlayer.motionX = 0.0;
-                mc.thePlayer.motionY = 0.0
+                mc.thePlayer.motionY = 0.0; // Natural gravity
                 mc.thePlayer.motionZ = 0.0;
             }
         }
@@ -91,7 +91,7 @@ public class HypixelFastFallDisabler extends Module {
         testTicks = 0;
         timeTicks = 0;
         offGroundTicks = 0;
-        
+
         sendMessageToPlayer("Hypixel Fast Fall enabled.");
     }
 
