@@ -41,6 +41,9 @@ public class BHop extends Module {
     }
     @Override
 public void onUpdate() {
+    if (mc.thePlayer == null || mc.theWorld == null) {
+        return; // Prevent null access
+    }
     if (((mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) && liquidDisable.isToggled()) || 
         (mc.thePlayer.isSneaking() && sneakDisable.isToggled())) {
         return;
@@ -123,6 +126,9 @@ public void onUpdate() {
     }
 
     private void handleFastFallMode() {
+        if (mc.thePlayer == null || mc.theWorld == null) {
+        return; // Prevent null access
+        }
         if (mc.thePlayer.onGround) {
             if (Utils.isMoving()) {
                 Utils.setHorizontalSpeed(mc.thePlayer, Utils.getHorizontalSpeed(mc.thePlayer) + 0.23f);
