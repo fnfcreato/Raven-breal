@@ -12,64 +12,69 @@ import keystrokesmod.utility.Utils;
 public class HypixelFastFallDisabler extends Module {
     private boolean isDisabling = false;
     private int offGroundTicks = 0;
+    private boolean hasJumped = false;
+    private boolean isFreezing = false;
 
     public HypixelFastFallDisabler() {
         super("Hypixel Fast Fall", Module.category.world, 0);
     }
-
+    
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent event) {
         if (Utils.nullCheck()) return;
 
-        // Increment or reset offGroundTicks
         if (mc.thePlayer.onGround) {
+            // Reset when on ground
             offGroundTicks = 0;
+            hasJumped = false;
+            isFreezing = false;
         } else {
+            // Increment off-ground ticks
             offGroundTicks++;
         }
 
-        if (isDisabling) {
-            if (offGroundTicks > 10) {
-                // Force freeze the player
-                mc.thePlayer.motionX = 0.0;
-                mc.thePlayer.motionY = -0.1; // Freeze with slight downward motion
-                mc.thePlayer.motionZ = 0.0;
+        // Trigger jump if we haven't already jumped
+        if (!hasJumped) {
+            mc.thePlayer.jump();
+            hasJumped = true;
+            System.out.println("[DEBUG] Player jumped.");
+        }
 
-                // Log the freezing behavior
-                System.out.println("[DEBUG] Player frozen. offGroundTicks: " + offGroundTicks);
-
-                // Slight position adjustment to simulate natural motion
-                event.setPosX(event.getPosX() + Utils.randomizeDouble(-0.01, 0.01));
-                event.setPosZ(event.getPosZ() + Utils.randomizeDouble(-0.01, 0.01));
-            }
+        // After jumping, freeze motion to disable jump checks
+        if (offGroundTicks >= 5 && !isFreezing) {
+            mc.thePlayer.motionX = 0.0;
+            mc.thePlayer.motionY = -0.1; // Simulate gentle downward motion
+            mc.thePlayer.motionZ = 0.0;
+            isFreezing = true;
+            System.out.println("[DEBUG] Player motion frozen to bypass jump checks.");
         }
     }
 
     @Override
     public void onEnable() {
-        isDisabling = true;
         offGroundTicks = 0;
+        hasJumped = false;
+        isFreezing = false;
 
-        if (mc.thePlayer != null) {
-            sendMessageToPlayer("Hypixel Fast Fall enabled.");
-            System.out.println("[DEBUG] Hypixel Fast Fall enabled.");
-        }
+        sendMessageToPlayer("Hypixel Fast Fall enabled.");
+        System.out.println("[DEBUG] Hypixel Fast Fall enabled.");
     }
 
     @Override
     public void onDisable() {
-        isDisabling = false;
+        // Reset player motion and state
         offGroundTicks = 0;
+        hasJumped = false;
+        isFreezing = false;
 
-        // Reset motion to normal
         if (mc.thePlayer != null) {
             mc.thePlayer.motionX = 0.0;
             mc.thePlayer.motionY = -0.0784; // Default gravity
             mc.thePlayer.motionZ = 0.0;
-
-            sendMessageToPlayer("Hypixel Fast Fall disabled.");
-            System.out.println("[DEBUG] Hypixel Fast Fall disabled.");
         }
+
+        sendMessageToPlayer("Hypixel Fast Fall disabled.");
+        System.out.println("[DEBUG] Hypixel Fast Fall disabled.");
     }
 
     private void sendMessageToPlayer(String message) {
