@@ -65,6 +65,7 @@ public class ModuleManager {
     public static Sprint sprint;
     public static Weather weather;
     public static MotionDisabler motiondisabler;
+    public static HypixelFastFallDisabler hypixelfastfalldisabler;
 
     public void register() {
         this.addModule(autoClicker = new AutoClicker());
@@ -74,6 +75,7 @@ public class ModuleManager {
         this.addModule(new BurstClicker());
         this.addModule(weather = new Weather());
         this.addModule(new MotionDisabler());
+        this.addModule(new HypixelFastFallDisabler());
         this.addModule(new ClickAssist());
         this.addModule(tower = new Tower());
         this.addModule(skyWars = new SkyWars());
