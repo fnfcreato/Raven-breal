@@ -9,6 +9,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import keystrokesmod.utility.Utils;
 
+
 public class HypixelFastFallDisabler extends Module {
     private boolean jump = false;
     private boolean disabling = false;
@@ -24,16 +25,26 @@ public class HypixelFastFallDisabler extends Module {
 
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent event) {
-        if (Utils.nullCheck()) return;
+        if (Utils.nullCheck()) {
+            System.out.println("[DEBUG] Null check failed. Player or World is null.");
+            return;
+        }
+
+        System.out.println("[DEBUG] PreMotionEvent triggered. Player Position: " +
+                "X=" + mc.thePlayer.posX +
+                ", Y=" + mc.thePlayer.posY +
+                ", Z=" + mc.thePlayer.posZ);
 
         if (mc.thePlayer.onGround) {
             // Reset state when the player is on the ground
+            System.out.println("[DEBUG] Player is on the ground. Resetting state.");
             offGroundTicks = 0;
             jump = false;
             disabling = false;
         } else {
             // Increment off-ground ticks when not on the ground
             offGroundTicks++;
+            System.out.println("[DEBUG] Player off ground. OffGroundTicks: " + offGroundTicks);
         }
 
         if (!jump && mc.thePlayer.onGround) {
@@ -42,7 +53,7 @@ public class HypixelFastFallDisabler extends Module {
             jump = true;
             disabling = true;
             timeTicks = mc.thePlayer.ticksExisted;
-            System.out.println("[DEBUG] Player jumped.");
+            System.out.println("[DEBUG] Jump initiated. TimeTicks: " + timeTicks);
         }
 
         if (disabling && offGroundTicks >= 10) {
@@ -55,6 +66,9 @@ public class HypixelFastFallDisabler extends Module {
                 // Adjust position slightly to mimic natural movement
                 event.setPosX(event.getPosX() + 0.095);
                 event.setPosZ(event.getPosZ() + 0.095);
+                System.out.println("[DEBUG] Adjusting player position. New Pos: " +
+                        "X=" + event.getPosX() +
+                        ", Z=" + event.getPosZ());
             }
             System.out.println("[DEBUG] Freezing player motion. OffGroundTicks: " + offGroundTicks);
         }
@@ -62,8 +76,11 @@ public class HypixelFastFallDisabler extends Module {
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
+        System.out.println("[DEBUG] SendPacketEvent triggered. Packet: " + event.getPacket().getClass().getName());
+
         if (event.getPacket() instanceof S08PacketPlayerPosLook) {
             testTicks++;
+            System.out.println("[DEBUG] S08PacketPlayerPosLook received. TestTicks: " + testTicks);
 
             if (testTicks >= 30) {
                 // Disable the disabler after 30 flagged packets
@@ -79,7 +96,7 @@ public class HypixelFastFallDisabler extends Module {
                 mc.thePlayer.motionX = 0.0;
                 mc.thePlayer.motionY = 0.0;
                 mc.thePlayer.motionZ = 0.0;
-                System.out.println("[DEBUG] Player motion frozen after S08PacketPlayerPosLook.");
+                System.out.println("[DEBUG] Player motion frozen due to flagged packet.");
             }
         }
     }
@@ -120,6 +137,7 @@ public class HypixelFastFallDisabler extends Module {
     private void sendMessageToPlayer(String message) {
         if (mc.thePlayer != null) {
             mc.thePlayer.addChatMessage(new ChatComponentText(message));
+            System.out.println("[DEBUG] Chat message sent to player: " + message);
         }
     }
 }
