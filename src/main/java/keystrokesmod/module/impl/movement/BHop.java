@@ -146,14 +146,15 @@ public class BHop extends Module {
     }
     
     @Override
-    public void onDisable() {
-        if (stopMotion.isToggled()) {
-            mc.thePlayer.motionZ = 0;
-            mc.thePlayer.motionY = 0;
-            mc.thePlayer.motionX = 0;
-        }
-        hopping = false;
+public void onDisable() {
+    if (stopMotion.isToggled()) {
+        //.
+        mc.thePlayer.motionX = 0;
+        mc.thePlayer.motionY = 0;
+        mc.thePlayer.motionZ = 0;
     }
+    hopping = false;
+}
 
     @SubscribeEvent
     public void onJump(JumpEvent e) {
