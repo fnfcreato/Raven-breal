@@ -41,6 +41,10 @@ public class BHop extends Module {
     }
     @Override
 public void onUpdate() {
+    if (!this.isEnabled()) {
+        return; // Prevent the logic from running when BHop is disabled
+    }
+    
     if (mc.thePlayer == null || mc.theWorld == null) {
         return; // Prevent null access
     }
@@ -170,6 +174,9 @@ public void onDisable() {
 
     @SubscribeEvent
     public void onJump(JumpEvent e) {
+        if (!this.isEnabled()) {
+        return; // Prevent the bhop when BHop is disabled
+        }
         if (autoJump.isToggled()) {
             e.setSprint(false);
         }
