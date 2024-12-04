@@ -40,39 +40,41 @@ public class BHop extends Module {
         return modes[(int) mode.getInput()];
     }
     @Override
-    public void onUpdate() {
-        if (((mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) && liquidDisable.isToggled()) || 
-            (mc.thePlayer.isSneaking() && sneakDisable.isToggled())) {
-            return;
-        }
-        if (disableInInventory.isToggled() && Settings.inInventory()) {
-            return;
-        }
-        if (ModuleManager.bedAura.isEnabled() && ModuleManager.bedAura.disableBHop.isToggled() && 
-            ModuleManager.bedAura.currentBlock != null && 
-            RotationUtils.inRange(ModuleManager.bedAura.currentBlock, ModuleManager.bedAura.range.getInput())) {
-            return;
-        }
-        if (mc.thePlayer.onGround) {
-            offGroundTicks = 0;
-        } else {
-            offGroundTicks++;
-        }
-        
-        switch ((int) mode.getInput()) {
-            case 0: // Strafe Mode
-                handleStrafeMode();
-                break;
-
-            case 1: // Ground Mode
-                handleGroundMode();
-                break;
-
-            case 2: // FastFall Mode
-                handleFastFallMode();
-                break;
-        }
+public void onUpdate() {
+    if (((mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) && liquidDisable.isToggled()) || 
+        (mc.thePlayer.isSneaking() && sneakDisable.isToggled())) {
+        return;
     }
+    if (disableInInventory.isToggled() && Settings.inInventory()) {
+        return;
+    }
+    if (ModuleManager.bedAura.isEnabled() && ModuleManager.bedAura.disableBHop.isToggled() && 
+        ModuleManager.bedAura.currentBlock != null && 
+        RotationUtils.inRange(ModuleManager.bedAura.currentBlock, ModuleManager.bedAura.range.getInput())) {
+        return;
+    }
+
+    if (mc.thePlayer.onGround) {
+        offGroundTicks = 0;
+    } else {
+        offGroundTicks++;
+    }
+
+    // Only adjust movement based on the selected mode
+    switch ((int) mode.getInput()) {
+        case 0: // Strafe Mode
+            handleStrafeMode();
+            break;
+
+        case 1: // Ground Mode
+            handleGroundMode();
+            break;
+
+        case 2: // FastFall Mode
+            handleFastFallMode();
+            break;
+    }
+}
 
     private void handleStrafeMode() {
         if (Utils.isMoving()) {
