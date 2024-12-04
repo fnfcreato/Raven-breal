@@ -41,6 +41,9 @@ public class Tower extends Module {
     
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent e) {
+        if (!this.isEnabled()) {
+        return; // Prevent the logic from running when Tower is disabled
+        }
          if (mc.thePlayer.onGround) {
         offGroundTicks = 0;
     } else {
