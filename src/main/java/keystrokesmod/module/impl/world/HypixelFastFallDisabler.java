@@ -46,7 +46,7 @@ public class HypixelFastFallDisabler extends Module {
             System.out.println("[DEBUG] Player off ground. OffGroundTicks: " + offGroundTicks);
         }
 
-        if (!jump && mc.thePlayer.onGround) {
+        if (!jump && mc.thePlayer.onGround && !disabling) {
             // Simulate a jump when on the ground
             mc.thePlayer.jump();
             jump = true;
